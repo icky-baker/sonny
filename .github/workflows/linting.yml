@@ -1,0 +1,59 @@
+name: Python application
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: [CLIENT] Lint with isort
+      run: |
+        isort -rc client
+    - name: [CLIENT] Lint with black
+      run: |
+        black --check client
+    - name: [CLIENT] Lint with flake8
+      run: |
+        flake8 client
+
+    - name: [NAMING] Lint with isort
+      run: |
+        isort -rc naming-server
+    - name: [NAMING] Lint with black
+      run: |
+        black --check naming-server
+    - name: [NAMING] Lint with flake8
+      run: |
+        flake8 naming-server
+
+    - name: [STORAGE] Lint with isort
+      run: |
+        isort -rc storage
+    - name: [STORAGE] Lint with black
+      run: |
+        black --check storage
+    - name: [STORAGE] Lint with flake8
+      run: |
+        flake8 storage

@@ -1,0 +1,24 @@
+
+repos:
+  - repo: https://github.com/ambv/black
+    rev: stable
+    hooks:
+      - id: black
+        language_version: python3.8
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: flake8
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.2.2
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/asottile/yesqa
+    rev: v0.0.11
+    hooks:
+      - id: yesqa
