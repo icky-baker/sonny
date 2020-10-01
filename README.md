@@ -6,7 +6,7 @@ DFS built for DS course
 1. Initialize environment with `make install`
 
 # Requests to naming
-Using (httpie)[https://httpie.org]
+Using [httpie](https://httpie.org)
 
 ## Register server
 `http "localhost:8000/server/register/?space=123"`
