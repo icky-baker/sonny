@@ -1,8 +1,10 @@
 import functools
-from typing import List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union
 
+from core.models import StorageServer
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponse
+from django.forms import model_to_dict
+from django.http import HttpResponse, JsonResponse
 
 
 def extract_socket(request: WSGIRequest) -> Tuple[str, str]:
@@ -16,7 +18,7 @@ def get_query_params(request: WSGIRequest, names: List[str], types: list = None)
     if [val for val in param_values if val is None]:
         missed_params = [name for name, value in zip(names, param_values) if value is None]
 
-        return HttpResponse(f"Provide {','.join(missed_params)} in query params", status=400)
+        return HttpResponse(f"Provide {', '.join(missed_params)} in query params", status=400)
 
     if types:
         return [cast(value) for cast, value in zip(types, param_values)]
@@ -40,3 +42,18 @@ def require_auth(f):
         return f(request, *args, **kwargs)
 
     return wrapper
+
+
+def servers_to_dict_list(
+    servers: Iterable[StorageServer], fields: List[str] = None
+) -> List[Dict[str, Any,]]:
+    fields = fields or ["host", "port", "available_space"]
+    return list(map(lambda m: model_to_dict(m, fields), servers))
+
+
+def servers_to_json_response(servers: Iterable[StorageServer], fields: List[str] = None) -> HttpResponse:
+    return JsonResponse(
+        servers_to_dict_list(servers, fields),
+        status=200,
+        safe=False,
+    )

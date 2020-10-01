@@ -1,9 +1,18 @@
+from random import choice
+
 from django.core.handlers.wsgi import WSGIRequest
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
+from django.views import View
 
 from .models import StorageServer, StoredFile
-from .utils.request import extract_socket, get_query_params, require_auth
+from .utils.request import (
+    extract_socket,
+    get_query_params,
+    require_auth,
+    servers_to_dict_list,
+    servers_to_json_response,
+)
 
 
 @require_auth
@@ -42,33 +51,38 @@ def recover_server(request: WSGIRequest):
     return HttpResponse("Recover completed", status=200)
 
 
-def allocate_file(request: WSGIRequest):
-    """
-    Let body be
-    {
-        "size": X in bytes
-    }
-    """
-    param = get_query_params(request, ["name", "size"])
-    if isinstance(param, HttpResponse):
-        return param
+class FileView(View):
+    def get(self, request: WSGIRequest):
+        param = get_query_params(request, ["name", "size", "owner_hash"])
+        if isinstance(param, HttpResponse):
+            return param
 
-    filename, size = param
+        filename, size, owner_hash = param
 
-    try:
-        servers = StorageServer.objects.allocate(StoredFile.objects.create(name=filename, size=size))
-        return JsonResponse(
-            list(map(lambda m: model_to_dict(m, ["host", "port", "available_space"]), servers)),
-            status=200,
-            safe=False,
-        )
-    except ValueError as e:
-        return HttpResponse(str(e), status=507)
+        try:
+            stored_file = StoredFile.objects.get(name=filename, size=size, owner_hash=owner_hash)
+            return servers_to_json_response(
+                [
+                    choice(list(stored_file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING))),
+                ],
+                fields=["host", "port"],
+            )
 
+        except StoredFile.DoesNotExist:
+            return HttpResponse("Such file doesn't exist", status=404)
 
-def fetch_file_location(request: WSGIRequest):
-    param = get_query_params(request, ["name", "size"])
-    if isinstance(param, HttpResponse):
-        return param
+    def post(self, request: WSGIRequest):
+        param = get_query_params(request, ["name", "size"])
+        if isinstance(param, HttpResponse):
+            return param
 
-    filename, size = param
+        filename, size = param
+        try:
+            new_file = StoredFile.objects.create(name=filename, size=size)
+            servers = StorageServer.objects.allocate(new_file)
+            return JsonResponse(
+                {"owner_hash": new_file.owner_hash, "hosts": servers_to_dict_list(servers)}, status=200
+            )
+
+        except ValueError as e:
+            return HttpResponse(str(e), status=507)

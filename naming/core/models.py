@@ -1,5 +1,6 @@
 from typing import List
 
+from core.utils.hashes import get_random_hash
 from django.core.validators import validate_ipv4_address
 from django.db import models
 from django.db.models import QuerySet
@@ -67,6 +68,13 @@ class StoredFile(models.Model):
 
     name = models.TextField(verbose_name="File name")
     size = models.IntegerField(verbose_name="Size of the file, in bytes")
+
+    owner_hash = models.TextField(
+        max_length="10",
+        default=get_random_hash,
+        verbose_name="Unique hash, only owner of the file knows it",
+        editable=False,
+    )
 
 
 __all__ = [StorageServer, StoredFile]

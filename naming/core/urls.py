@@ -21,5 +21,5 @@ from . import views
 urlpatterns = [
     path("server/register/", views.register_new_storage_server, name="new-server"),
     path("server/recover/", views.recover_server, name="recover-server"),
-    path("file/allocate/", views.allocate_file, name="allocate-file"),
+    path("file/", views.FileView.as_view(), name="file"),
 ]
