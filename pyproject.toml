@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "sonny"
+version = "0.1.0"
+license = "MIT"
+
+[tool.black]
+line-length = 119
+target_version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | snapshots
+  )/
+)
+'''
+
+[tool.isort]
+line_length = 119
+multi_line_output = 3
+include_trailing_comma = true
+use_parentheses = true
+force_grid_wrap = 0

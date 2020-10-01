@@ -3,7 +3,7 @@
 base_python := python3.8
 virtualenv_dir := .venv
 python := $(virtualenv_dir)/bin/$(base_python)
-project_source_dir := client naming-server storage-server
+project_source_dir := client naming_server storage-server
 
 pyenv := source $(virtualenv_dir)/bin/activate
 
