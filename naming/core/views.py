@@ -1,15 +1,16 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.forms import model_to_dict
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 from .models import StorageServer, StoredFile
-from .utils.request import extract_socket, get_query_params
+from .utils.request import extract_socket, get_query_params, require_auth
 
 
-# TODO: add available space from query params here
+@require_auth
 def register_new_storage_server(request: WSGIRequest):
     host, port = extract_socket(request)
     param = get_query_params(request, ["space"], types=[int])
+
     if isinstance(param, HttpResponse):
         return param
 
@@ -22,6 +23,7 @@ def register_new_storage_server(request: WSGIRequest):
     return HttpResponse("Already exists", status=200)
 
 
+@require_auth
 def recover_server(request: WSGIRequest):
     host, port = extract_socket(request)
 
@@ -62,3 +64,11 @@ def allocate_file(request: WSGIRequest):
         )
     except ValueError as e:
         return HttpResponse(str(e), status=507)
+
+
+def fetch_file_location(request: WSGIRequest):
+    param = get_query_params(request, ["name", "size"])
+    if isinstance(param, HttpResponse):
+        return param
+
+    filename, size = param

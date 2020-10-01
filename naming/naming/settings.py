@@ -124,6 +124,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+STORAGE_SERVER_SECRET_HASH = "hash"
 
 try:
     from .env_settings import populate_settings

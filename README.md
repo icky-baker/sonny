@@ -11,6 +11,8 @@ Using (httpie)[https://httpie.org]
 ## Register server
 `http "localhost:8000/server/register/?space=123"`
 
+If authetication is enabled, then `http "localhost:8000/server/register/?space=1234" Server-Hash:hash`
+
 ## Recover server
 `http "localhost:8000/server/recover/?space=134"`
 
