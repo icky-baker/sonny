@@ -40,13 +40,13 @@ jobs:
 
     - name: [NAMING] Lint with isort
       run: |
-        isort -rc naming_server
+        isort -rc naming
     - name: [NAMING] Lint with black
       run: |
-        black --check naming_server
+        black --check naming
     - name: [NAMING] Lint with flake8
       run: |
-        flake8 naming_server
+        flake8 naming
 
     - name: [STORAGE] Lint with isort
       run: |

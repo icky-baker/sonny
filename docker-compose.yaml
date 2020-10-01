@@ -1,1 +1,19 @@
-#todo
+version: "3.7"
+
+services:
+  naming:
+    image: "naming"
+    build:
+      context: .
+      dockerfile: naming.dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=naming
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

@@ -1,0 +1,8 @@
+def populate_settings(g):
+    print("Loading env settings!")
+
+    g["DATABASES"]["default"]["USER"] = "postgres"
+    g["DATABASES"]["default"]["PASSWORD"] = "postgres"
+    g["DATABASES"]["default"]["HOST"] = "db"
+    g["ALLOWED_HOSTS"] = ["*"]
+    g["DEBUG"] = False
