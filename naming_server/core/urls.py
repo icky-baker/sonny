@@ -16,7 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from . import views
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("core.urls")),
+    path("server/register/", views.register_new_storage_server, name="new-server"),
+    path("server/recover/", views.recover_server, name="recover-server"),
 ]
