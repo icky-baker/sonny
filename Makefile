@@ -82,10 +82,10 @@ lint: isort black flake8
 # Naming project
 # =================================================================================================
 
-.PHONE: naming_migrate
+.PHONY: naming_migrate
 naming_migrate: |
 	$(python) naming_server/manage.py migrate
 
-.PHONE: naming
+.PHONY: naming
 naming: |
 	$(python) naming_server/manage.py runserver
