@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Checks health of storage servers"
 
     def handle(self, *args, **kwargs):
-        for server in StorageServer.objects.filter(state=StorageServer.StorageServerStates.RUNNING):
+        for server in StorageServer.objects.filter(status=StorageServer.StorageServerStatuses.RUNNING):
             # TODO: send health request here
             # if no response -> update state to DOWN
             pass

@@ -6,12 +6,13 @@ DFS built for DS course
 1. Initialize environment with `make install`
 
 # Requests to naming
+Using (httpie)[https://httpie.org]
 
 ## Register server
-`http "localhost:8000/server/register/"`
+`http "localhost:8000/server/register/?space=123"`
 
 ## Recover server
-`http localhost:8000/server/recover/`
+`http "localhost:8000/server/recover/?space=134"`
 
 ## Allocate
-`http "localhost:8000/file/allocate/?filename=bestfile&size=1243"`
+`http "localhost:8000/file/allocate/?name=bestfile&size=1243"`

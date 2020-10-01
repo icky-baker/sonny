@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 
 class StorageServerManager(models.Manager):
     def get_active(self) -> QuerySet:
-        return self.filter(state=StorageServer.StorageServerStates.RUNNING)
+        return self.filter(status=StorageServer.StorageServerStatuses.RUNNING)
 
     def allocate(self, file: "StoredFile") -> List["StorageServer"]:
         servers = self.get_active().filter(available_space__gt=file.size).order_by("available_space")
@@ -25,7 +25,7 @@ class StorageServerManager(models.Manager):
 
 
 class StorageServer(models.Model):
-    class StorageServerStates(models.TextChoices):
+    class StorageServerStatuses(models.TextChoices):
         RUNNING = "RUNNING"
         DOWN = "DOWN"
 
@@ -40,17 +40,20 @@ class StorageServer(models.Model):
     host = models.TextField(verbose_name="IP address", validators=(validate_ipv4_address,))
     port = models.IntegerField(verbose_name="port")
 
-    state = models.CharField(
-        choices=StorageServerStates.choices,
-        default=StorageServerStates.RUNNING,
+    status = models.CharField(
+        choices=StorageServerStatuses.choices,
+        default=StorageServerStatuses.RUNNING,
         max_length=20,
         verbose_name="State of the server",
     )
 
-    available_space = models.IntegerField(verbose_name="Available space on dist, in bytes")
+    available_space = models.IntegerField(verbose_name="Available space on disk, in bytes")
 
     def update(self, save: bool = True, **kwargs):
         for name, value in kwargs.items():
+            if not hasattr(self, name):
+                raise ValueError(f"Unknown field {name}")
+
             setattr(self, name, value)
 
         if save:
