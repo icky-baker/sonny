@@ -16,5 +16,8 @@ If authetication is enabled, then `http "localhost:8000/server/register/?space=1
 ## Recover server
 `http "localhost:8000/server/recover/?space=134"`
 
-## Allocate
-`http "localhost:8000/file/allocate/?name=bestfile&size=1243"`
+## Get file location
+`http GET "localhost:8000/file/?name=some cool name&size=123&owner_hash=1170fb604e03d1a9a613"`
+
+## Allocate file
+`http POST "localhost:8000/file/allocate/?name=bestfile&size=123"`
