@@ -3,7 +3,7 @@
 base_python := python3.8
 virtualenv_dir := .venv
 python := $(virtualenv_dir)/bin/$(base_python)
-project_source_dir := client naming_server storage-server
+project_source_dir := client naming storage-server
 
 pyenv := source $(virtualenv_dir)/bin/activate
 
@@ -84,8 +84,8 @@ lint: isort black flake8
 
 .PHONY: naming_migrate
 naming_migrate: |
-	$(python) naming_server/manage.py migrate
+	$(python) naming/manage.py migrate
 
 .PHONY: naming
 naming: |
-	$(python) naming_server/manage.py runserver
+	$(python) naming/manage.py runserver
