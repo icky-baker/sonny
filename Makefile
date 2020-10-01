@@ -79,5 +79,13 @@ flake8:
 lint: isort black flake8
 
 # =================================================================================================
-# Project
+# Naming project
 # =================================================================================================
+
+.PHONE: naming_migrate
+naming_migrate: |
+	$(python) naming_server/manage.py migrate
+
+.PHONE: naming
+naming: |
+	$(python) naming_server/manage.py runserver
