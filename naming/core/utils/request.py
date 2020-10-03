@@ -10,6 +10,8 @@ from django.http import HttpResponse, JsonResponse
 def get_query_params(request: WSGIRequest, names: List[str], types: list = None) -> Union[list, HttpResponse]:
     types = types or []
     param_values = [request.GET.get(name, None) for name in names]
+    if not param_values:
+        param_values = [request.POST.get(name, None) for name in names]
 
     if [val for val in param_values if val is None]:
         missed_params = [name for name, value in zip(names, param_values) if value is None]
