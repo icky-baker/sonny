@@ -92,4 +92,4 @@ naming: |
 
 .PHONY: naming_prod
 naming_prod: |
-	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:8000 naming.wsgi
+	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
