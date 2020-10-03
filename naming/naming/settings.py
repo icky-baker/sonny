@@ -128,7 +128,7 @@ STORAGE_SERVER_SECRET_HASH = "hash"
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    # "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
