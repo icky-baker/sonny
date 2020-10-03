@@ -63,7 +63,7 @@ class StoredFile(models.Model):
     name = models.TextField(verbose_name="File name")
     size = models.IntegerField(verbose_name="Size of the file, in bytes")
 
-    meta = models.JSONField(verbose_name="Meta information about file", null=False)
+    meta = models.JSONField(verbose_name="Meta information about file", null=False, default=dict)
 
 
 __all__ = [StorageServer, StoredFile]
