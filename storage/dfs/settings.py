@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import logging
 import os
 import shutil
 import socket
 
 import requests
+
+logger = logging.getLogger("common")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,8 +32,7 @@ r = requests.get(
     f"{HOST_NAMING}/api/server/register/",
     params={"space": free_space, "host": HOST_IP, "port": HOST_PORT},
 )
-print(f"Response from naming server: {r.status_code}")
-
+logger.info(f"Response from naming server: {r.status_code}")
 
 try:
     os.mkdir(WORK_DIR)
