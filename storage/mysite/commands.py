@@ -32,7 +32,7 @@ def file_create(name, cwd):
             },
             params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
 
         return HttpResponse(status=201)
 
@@ -64,7 +64,7 @@ def file_write(request, cwd):
         },
         params={"name": file.name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
     )
-    print(r.status_code)
+    print(f"Response from naming server: {r.status_code}")
 
     return HttpResponse(status=200)
 
@@ -79,7 +79,7 @@ def file_delete(name, cwd):
             data={},
             params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
         return HttpResponse(status=200)
 
 
@@ -120,7 +120,7 @@ def file_copy(name, cwd):
             },
             params={"name": target, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
         return JsonResponse({"msg": {"filename": target}}, status=404)
 
 
@@ -145,7 +145,7 @@ def file_move(name, cwd, path):
             },
             params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
         return HttpResponse(status=200)
 
 
@@ -184,7 +184,7 @@ def dir_make(name, cwd):  # egor
             data={},
             params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
         return HttpResponse(status=201)
 
 
@@ -198,5 +198,5 @@ def dir_delete(cwd):  # egor
             data={},
             params={"name": None, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
         )
-        print(r.status_code)
+        print(f"Response from naming server: {r.status_code}")
         return HttpResponse(status=200)
