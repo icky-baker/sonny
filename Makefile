@@ -89,3 +89,7 @@ naming_migrate: |
 .PHONY: naming
 naming: |
 	$(python) naming/manage.py runserver
+
+.PHONY: naming_prod
+naming_prod: |
+	$(base_python) manage.py migrate; gunicorn -b 0.0.0.0:8000 naming.wsgi
