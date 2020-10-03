@@ -1,6 +1,5 @@
 from typing import List
 
-from core.utils.hashes import get_random_hash
 from django.core.validators import validate_ipv4_address
 from django.db import models
 from django.db.models import QuerySet
@@ -59,6 +58,9 @@ class StorageServer(models.Model):
 
         if save:
             self.save()
+
+    def get_url(self):
+        return f"http://{self.host}:{self.port}/"
 
 
 class StoredFile(models.Model):

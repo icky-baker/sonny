@@ -1,14 +1,27 @@
+import logging
+
+import requests
+from core.models import StorageServer
 from django.core.management.base import BaseCommand
-from django.utils import timezone
-from models import StorageServer
+
+logger = logging.getLogger("common")
 
 
 class Command(BaseCommand):
     help = "Checks health of storage servers"
 
     def handle(self, *args, **kwargs):
-        for server in StorageServer.objects.filter(status=StorageServer.StorageServerStatuses.RUNNING):
-            # TODO: send health request here
-            # if no response -> update state to DOWN
-            pass
-            self.stdout.write("Cron works!!!!!!!!!")
+        for server in StorageServer.objects.all():
+            try:
+                response = requests.get(f"{server.get_url()}api", timeout=1)
+            except (requests.Timeout, requests.ConnectionError):
+                response = None
+
+            new_status = None
+            if response and response.status_code == 200:
+                new_status = StorageServer.StorageServerStatuses.RUNNING
+            else:
+                new_status = StorageServer.StorageServerStatuses.DOWN
+
+            logger.info(f"Server {server.id} is down")
+            server.update(status=new_status)
