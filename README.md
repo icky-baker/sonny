@@ -26,4 +26,4 @@ If authetication is enabled, then `http "localhost:8000/server/register/?space=1
 `http GET "3.134.152.50:80/api/file/?name=some cool name" Server-Hash:suchsecret`
 
 ### Allocate file
-`http POST "3.134.152.50:80/api/file/allocate/?name=bestfile&size=123" Server-Hash:suchsecret`
+`http POST "3.134.152.50:80/api/file/?name=bestfile&size=123" Server-Hash:suchsecret`
