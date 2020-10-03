@@ -57,14 +57,14 @@ def recover_server(request: WSGIRequest):
 
 class FileView(View):
     def get(self, request: WSGIRequest):
-        param = get_query_params(request, ["name", "size"])
+        param = get_query_params(request, ["name"])
         if isinstance(param, HttpResponse):
             return param
 
-        filename, size = param
+        filename = param
 
         try:
-            stored_file = StoredFile.objects.get(name=filename, size=size)
+            stored_file = StoredFile.objects.get(name=filename)
             return servers_to_json_response(
                 [
                     choice(list(stored_file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING))),
