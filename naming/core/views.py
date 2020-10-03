@@ -10,7 +10,7 @@ from .utils.request import get_query_params, require_auth, servers_to_dict_list,
 
 @require_auth
 def retrieve_storage_servers(request: WSGIRequest):
-    return JsonResponse({"hosts": servers_to_dict_list(StorageServer.objects.get_active(), fields=["host", "port"])})
+    return JsonResponse({"hosts": servers_to_dict_list(StorageServer.objects.get_active())})
 
 
 @require_auth
@@ -47,14 +47,15 @@ def recover_server(request: WSGIRequest):
 
 class FileView(View):
     def get(self, request: WSGIRequest):
-        param = get_query_params(request, ["name"])
+        param = get_query_params(request, ["name", "cwd"])
         if isinstance(param, HttpResponse):
             return param
 
-        filename = param
+        file_name, cwd = param
+        full_name = f"{cwd}/{file_name}"
 
         try:
-            stored_file = StoredFile.objects.get(name=filename)
+            stored_file = StoredFile.objects.get(name=full_name)
             return servers_to_json_response(
                 [
                     choice(list(stored_file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING))),
@@ -66,15 +67,27 @@ class FileView(View):
             return HttpResponse("Such file doesn't exist", status=404)
 
     def post(self, request: WSGIRequest):
-        param = get_query_params(request, ["name", "size"])
+        param = get_query_params(request, ["name", "size", "cwd"])
         if isinstance(param, HttpResponse):
             return param
 
-        filename, size = param
+        file_name, size, cwd = param
+        full_name = f"{cwd}/{file_name}"
+
         try:
-            new_file = StoredFile.objects.create(name=filename, size=size)
-            servers = StorageServer.objects.allocate(new_file)
-            return JsonResponse({"hosts": servers_to_dict_list(servers)}, status=200)
+            # NOTE: we use model as dataclass here. that's shit
+            # TODO: create a UnsavedFileInfo dataclass
+            new_file = StoredFile(name=full_name, size=size)
+            return JsonResponse(
+                {
+                    "hosts": servers_to_dict_list(
+                        [
+                            StorageServer.objects.get_allocation(new_file),
+                        ]
+                    )
+                },
+                status=200,
+            )
 
         except ValueError as e:
             return HttpResponse(str(e), status=507)

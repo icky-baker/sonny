@@ -1,5 +1,3 @@
-from typing import List
-
 from django.core.validators import validate_ipv4_address
 from django.db import models
 from django.db.models import QuerySet
@@ -9,19 +7,15 @@ class StorageServerManager(models.Manager):
     def get_active(self) -> QuerySet:
         return self.filter(status=StorageServer.StorageServerStatuses.RUNNING)
 
-    def allocate(self, file: "StoredFile") -> List["StorageServer"]:
-        servers = self.get_active().filter(available_space__gt=file.size).order_by("available_space")
+    def get_allocation(self, file: "StoredFile") -> "StorageServer":
+        servers = self.get_active().filter(available_space__gt=file.size).order_by("-available_space")
         # let's pick server with the greatest amount of free space
         best_server = servers.first()
         if not best_server:
             # no servers in database
             raise ValueError("No servers available")
 
-        file.hosts.add(best_server)
-        file.save()
-        return [
-            best_server,
-        ]
+        return best_server
 
 
 class StorageServer(models.Model):
