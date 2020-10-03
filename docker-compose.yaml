@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   naming:
-    image: "naming"
+    image: "birdi7/naming"
     build:
       context: .
       dockerfile: naming.dockerfile
