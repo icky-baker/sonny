@@ -101,3 +101,7 @@ build_and_push: |
 .PHONY: pull_and_up
 pull_and_up: |
 	docker-compose pull && docker-compose up -d
+
+.PHONY: storage
+storage: |
+	$(python) storage/manage.py runserver

@@ -122,14 +122,15 @@ def file_delete(request: WSGIRequest):
 
 
 def retrieve_directory_content(request: WSGIRequest):
-    param = get_query_params(request, ["name"])
+    param = get_query_params(request, ["name", "cwd"])
     if isinstance(param, HttpResponse):
         return param
-    dir_name = param[0]
+    dir_name, cwd = param
+    full_name = get_full_name(cwd, dir_name)
 
-    if not StoredFile.objects.filter(name=dir_name).exists():
+    if not StoredFile.objects.filter(name=full_name).exists():
         return HttpResponse("Directory doesn't exist", status=400)
 
-    file = StoredFile.objects.get(name=dir_name)
+    file = StoredFile.objects.get(name=full_name)
     sub_files = file.get_sub_files()
     return JsonResponse({"files": file_list_to_dict_list(sub_files)}, status=200)
