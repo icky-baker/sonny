@@ -5,6 +5,6 @@ def populate_settings(g):
     g["DATABASES"]["default"]["PASSWORD"] = "postgres"
     g["DATABASES"]["default"]["HOST"] = "db"
     g["ALLOWED_HOSTS"] = ["*"]
-    g["DEBUG"] = False
+    g["DEBUG"] = True
 
     g["STORAGE_SERVER_SECRET_HASH"] = "suchsecret"

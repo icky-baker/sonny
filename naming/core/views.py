@@ -29,7 +29,6 @@ def register_new_storage_server(request: WSGIRequest):
 
     space = param[0]
     if not StorageServer.objects.filter(host=host, port=port).exists():
-        # FIXME: hardcode value here
         new_server = StorageServer.objects.create(host=host, port=port, available_space=space)
         return JsonResponse({"id": new_server.id}, status=201)
 
