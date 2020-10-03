@@ -100,6 +100,9 @@ def file_approve(request: WSGIRequest):
     new_file.hosts.add(sender_host)
     new_file.save()
 
+    # TODO:
+    # возвращать тут один сервер для репликации, если она еще нужна. если не нужна, пустой список
+    # каскадно будет реплицировать
     return HttpResponse(status=200)
 
 
@@ -118,6 +121,9 @@ def file_delete(request: WSGIRequest):
         return HttpResponse(status=400)
 
     file.detele()
+    # TODO:
+    # возвращать тут один сервер для репликации, если она еще нужна. если не нужна, пустой список
+    # каскадно будет реплицировать
     return HttpResponse(status=200)
 
 

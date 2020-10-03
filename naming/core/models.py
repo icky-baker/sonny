@@ -43,7 +43,7 @@ class StorageServer(models.Model):
         verbose_name="State of the server",
     )
 
-    available_space = models.IntegerField(verbose_name="Available space on disk, in bytes")
+    available_space = models.PositiveBigIntegerField(verbose_name="Available space on disk, in bytes")
 
     def update(self, save: bool = True, **kwargs):
         for name, value in kwargs.items():
@@ -63,7 +63,7 @@ class StoredFile(models.Model):
     hosts = models.ManyToManyField(StorageServer, related_name="files")
 
     name = models.TextField(verbose_name="File name")
-    size = models.IntegerField(verbose_name="Size of the file, in bytes", null=True)
+    size = models.PositiveBigIntegerField(verbose_name="Size of the file, in bytes", null=True)
 
     meta = models.JSONField(verbose_name="Meta information about file", null=False, default=dict)
 
