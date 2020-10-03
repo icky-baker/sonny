@@ -19,7 +19,7 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
-    path("api/hosts", views.retrieve_storage_servers, name="retrive-storage-servers"),
+    path("api/hosts/", views.retrieve_storage_servers, name="retrive-storage-servers"),
     path("api/server/register/", views.register_new_storage_server, name="new-server"),
     path("api/server/recover/", views.recover_server, name="recover-server"),
     path("api/file/", views.FileView.as_view(), name="file"),
