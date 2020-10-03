@@ -61,20 +61,11 @@ class StorageServer(models.Model):
             self.save()
 
 
-# todo: make ManyToMany field via an additional table with amount of chunks on every server
-# inside the relation. For now, we assume all chunks are placed on one host
 class StoredFile(models.Model):
     hosts = models.ManyToManyField(StorageServer, related_name="files")
 
     name = models.TextField(verbose_name="File name")
     size = models.IntegerField(verbose_name="Size of the file, in bytes")
-
-    owner_hash = models.TextField(
-        max_length="10",
-        default=get_random_hash,
-        verbose_name="Unique hash, only owner of the file knows it",
-        editable=False,
-    )
 
 
 __all__ = [StorageServer, StoredFile]

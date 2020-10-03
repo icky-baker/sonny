@@ -1,7 +1,6 @@
 from random import choice
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 
@@ -13,6 +12,11 @@ from .utils.request import (
     servers_to_dict_list,
     servers_to_json_response,
 )
+
+
+@require_auth
+def retrieve_storage_servers(request: WSGIRequest):
+    return JsonResponse({"hosts": servers_to_dict_list(StorageServer.objects.get_active(), fields=["host", "port"])})
 
 
 @require_auth
@@ -53,14 +57,14 @@ def recover_server(request: WSGIRequest):
 
 class FileView(View):
     def get(self, request: WSGIRequest):
-        param = get_query_params(request, ["name", "size", "owner_hash"])
+        param = get_query_params(request, ["name", "size"])
         if isinstance(param, HttpResponse):
             return param
 
-        filename, size, owner_hash = param
+        filename, size = param
 
         try:
-            stored_file = StoredFile.objects.get(name=filename, size=size, owner_hash=owner_hash)
+            stored_file = StoredFile.objects.get(name=filename, size=size)
             return servers_to_json_response(
                 [
                     choice(list(stored_file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING))),
@@ -80,9 +84,7 @@ class FileView(View):
         try:
             new_file = StoredFile.objects.create(name=filename, size=size)
             servers = StorageServer.objects.allocate(new_file)
-            return JsonResponse(
-                {"owner_hash": new_file.owner_hash, "hosts": servers_to_dict_list(servers)}, status=200
-            )
+            return JsonResponse({"hosts": servers_to_dict_list(servers)}, status=200)
 
         except ValueError as e:
             return HttpResponse(str(e), status=507)
