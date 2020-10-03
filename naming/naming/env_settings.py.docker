@@ -7,4 +7,5 @@ def populate_settings(g):
     g["ALLOWED_HOSTS"] = ["*"]
     g["DEBUG"] = True
 
-    g["STORAGE_SERVER_SECRET_HASH"] = "suchsecret"
+    # g["STORAGE_SERVER_SECRET_HASH"] = "suchsecret"
+    del g["STORAGE_SERVER_SECRET_HASH"]
