@@ -27,3 +27,4 @@ toml==0.10.1
 typed-ast==1.4.1
 typing-extensions==3.7.4.3
 virtualenv==20.0.32
+requests==2.24.0
