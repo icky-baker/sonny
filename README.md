@@ -12,10 +12,11 @@ Using [httpie](https://httpie.org)
 ### Register server
 `http "localhost:8000/api/server/register/?space=123"`
 
-If authetication is enabled, then `http "localhost:8000/server/register/?space=1234" Server-Hash:hash`
+If authetication is enabled, then
+`http "3.134.152.50:80/server/register/?space=1234" Server-Hash:hash`
 
 ### Recover server
-`http "localhost:8000/api/server/recover/?space=134"`
+`http "3.134.152.50:80/api/server/recover/?space=134"`
 
 ## For client
 
