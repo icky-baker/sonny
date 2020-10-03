@@ -15,7 +15,7 @@ def retrieve_storage_servers(request: WSGIRequest):
 
 @require_auth
 def register_new_storage_server(request: WSGIRequest):
-    param = get_query_params(request, ["space", "host", "port"], types=[int])
+    param = get_query_params(request, ["space", "host", "port"], types=[int, str, str])
 
     if isinstance(param, HttpResponse):
         return param
