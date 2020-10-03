@@ -18,8 +18,12 @@ If authetication is enabled, then `http "localhost:8000/server/register/?space=1
 `http "localhost:8000/api/server/recover/?space=134"`
 
 ## For client
+
+### Hosts
+`http GET "3.134.152.50:80/api/hosts"`
+
 ### Get file location
-`http GET "localhost:8000/api/file/?name=some cool name"`
+`http GET "3.134.152.50:80/api/file/?name=some cool name"`
 
 ### Allocate file
-`http POST "localhost:8000/api/file/allocate/?name=bestfile&size=123"`
+`http POST "3.134.152.50:80/api/file/allocate/?name=bestfile&size=123"`
