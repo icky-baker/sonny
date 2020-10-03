@@ -4,11 +4,16 @@ ENV WORKDIR=/app/
 WORKDIR /app/
 EXPOSE 80
 
-COPY Makefile /app/
-
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
+RUN apt-get update && apt-get -y install cron
+COPY naming/core/crontab /etc/cron.d/naming-crontab
+RUN chmod 0644 /etc/cron.d/naming-crontab &&\
+    crontab /etc/cron.d/naming-crontab &&\
+    touch /var/log/cron.log
+
+COPY Makefile /app/
 COPY naming/ /app/
 RUN mv /app/naming/env_settings.py.docker /app/naming/env_settings.py
 

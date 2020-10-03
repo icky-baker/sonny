@@ -1,11 +1,12 @@
+import json
 from random import choice
 
+from core.models import StorageServer, StoredFile
+from core.utils.files import get_full_name
+from core.utils.request import get_query_params, require_auth, servers_to_dict_list, servers_to_json_response
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, JsonResponse
 from django.views import View
-
-from .models import StorageServer, StoredFile
-from .utils.request import get_query_params, require_auth, servers_to_dict_list, servers_to_json_response
 
 
 @require_auth
@@ -25,24 +26,9 @@ def register_new_storage_server(request: WSGIRequest):
         new_server = StorageServer.objects.create(host=host, port=port, available_space=space)
         return JsonResponse({"id": new_server.id}, status=201)
 
-    return HttpResponse("Already exists", status=200)
-
-
-@require_auth
-def recover_server(request: WSGIRequest):
-    param = get_query_params(request, ["space", "host", "port"], types=[int])
-    if isinstance(param, HttpResponse):
-        return param
-    space, host, port = param
-
-    try:
-        server = StorageServer.objects.get(host=host, port=port)
-    except StorageServer.DoesNotExist:
-        return HttpResponse("Such server didn't register", status=404)
-
+    server = StorageServer.objects.get(host=host, port=port)
     server.update(status=server.StorageServerStatuses.RUNNING, available_space=space)
-
-    return HttpResponse("Recover completed", status=200)
+    return HttpResponse("Status updated", status=200)
 
 
 class FileView(View):
@@ -52,7 +38,7 @@ class FileView(View):
             return param
 
         file_name, cwd = param
-        full_name = f"{cwd}/{file_name}"
+        full_name = get_full_name(cwd, file_name)
 
         try:
             stored_file = StoredFile.objects.get(name=full_name)
@@ -72,7 +58,7 @@ class FileView(View):
             return param
 
         file_name, size, cwd = param
-        full_name = f"{cwd}/{file_name}"
+        full_name = get_full_name(cwd, file_name)
 
         try:
             # NOTE: we use model as dataclass here. that's shit
@@ -91,3 +77,39 @@ class FileView(View):
 
         except ValueError as e:
             return HttpResponse(str(e), status=507)
+
+
+def file_approve(request: WSGIRequest):
+    param = get_query_params(request, ["name", "host", "port", "cwd"])
+
+    if isinstance(param, HttpResponse):
+        return param
+
+    file_name, host, port, cwd = param
+    full_name = get_full_name(cwd, file_name)
+
+    file_meta_info = json.loads(request.body)
+    new_file = StoredFile.objects.create(name=full_name, size=file_meta_info["size"], meta=file_meta_info)
+    sender_host = StorageServer.objects.get(host=host, port=port)
+    new_file.hosts.add(sender_host)
+    new_file.save()
+
+    return HttpResponse(status=200)
+
+
+def file_delete(request: WSGIRequest):
+    param = get_query_params(request, ["name", "host", "port", "cwd"])
+
+    if isinstance(param, HttpResponse):
+        return param
+
+    file_name, host, port, cwd = param
+    full_name = get_full_name(cwd, file_name)
+
+    try:
+        file = StoredFile.objects.get(name=full_name)
+    except StoredFile.DoesNotExist:
+        return HttpResponse(status=400)
+
+    file.detele()
+    return HttpResponse(status=200)

@@ -10,6 +10,8 @@ services:
       - 80:8000
     depends_on:
       - db
+    volumes:
+      - ./logs:/var/log/
 
   db:
     image: postgres
