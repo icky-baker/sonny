@@ -10,13 +10,8 @@ Using [httpie](https://httpie.org)
 
 ## For storage servers
 ### Register server
-`http "localhost:8000/api/server/register/?space=123"`
+`http "localhost:8000/api/server/register/?space=123&host=123.123.123.12&port=1234"`
 
-If authetication is enabled, then
-`http "3.134.152.50:80/server/register/?space=1234" Server-Hash:hash`
-
-### Recover server
-`http "3.134.152.50:80/api/server/recover/?space=134"`
 
 ## For client
 
