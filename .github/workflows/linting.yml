@@ -50,10 +50,10 @@ jobs:
 
     - name: [STORAGE] Lint with isort
       run: |
-        isort -rc storage-server
+        isort -rc storage
     - name: [STORAGE] Lint with black
       run: |
-        black --check storage-server
+        black --check storage
     - name: [STORAGE] Lint with flake8
       run: |
-        flake8 storage-server
+        flake8 storage
