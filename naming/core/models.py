@@ -1,3 +1,5 @@
+from typing import List
+
 from django.core.validators import validate_ipv4_address
 from django.db import models
 from django.db.models import QuerySet
@@ -61,9 +63,21 @@ class StoredFile(models.Model):
     hosts = models.ManyToManyField(StorageServer, related_name="files")
 
     name = models.TextField(verbose_name="File name")
-    size = models.IntegerField(verbose_name="Size of the file, in bytes")
+    size = models.IntegerField(verbose_name="Size of the file, in bytes", null=True)
 
     meta = models.JSONField(verbose_name="Meta information about file", null=False, default=dict)
+
+    def is_file(self):
+        return self.size is not None
+
+    def is_directory(self):
+        return self.size is None
+
+    def get_sub_files(self) -> List["StoredFile"]:
+        if not self.is_directory():
+            raise ValueError("Not a directory")
+
+        return StoredFile.objects.filter(name__contains=self.name)
 
 
 __all__ = [StorageServer, StoredFile]

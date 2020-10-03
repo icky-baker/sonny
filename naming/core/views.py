@@ -3,7 +3,13 @@ from random import choice
 
 from core.models import StorageServer, StoredFile
 from core.utils.files import get_full_name
-from core.utils.request import get_query_params, require_auth, servers_to_dict_list, servers_to_json_response
+from core.utils.request import (
+    file_list_to_dict_list,
+    get_query_params,
+    require_auth,
+    servers_to_dict_list,
+    servers_to_json_response,
+)
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, JsonResponse
 from django.views import View
@@ -113,3 +119,17 @@ def file_delete(request: WSGIRequest):
 
     file.detele()
     return HttpResponse(status=200)
+
+
+def retrieve_directory_content(request: WSGIRequest):
+    param = get_query_params(request, ["name"])
+    if isinstance(param, HttpResponse):
+        return param
+    dir_name = param[0]
+
+    if not StoredFile.objects.filter(name=dir_name).exists():
+        return HttpResponse("Directory doesn't exist", status=400)
+
+    file = StoredFile.objects.get(name=dir_name)
+    sub_files = file.get_sub_files()
+    return JsonResponse({"files": file_list_to_dict_list(sub_files)}, status=200)

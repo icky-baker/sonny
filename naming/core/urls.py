@@ -23,5 +23,6 @@ urlpatterns = [
     path("api/server/register/", views.register_new_storage_server, name="new-server"),
     path("api/file/", views.FileView.as_view(), name="file"),
     path("api/file/approve/", views.file_approve, name="file-approve"),
-    path("api/file/delete", views.file_delete, name="file-delete"),
+    path("api/file/delete/", views.file_delete, name="file-delete"),
+    path("api/directory/", views.retrieve_storage_servers, name="retrieve-directory-content"),
 ]
