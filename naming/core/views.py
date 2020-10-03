@@ -21,7 +21,8 @@ def retrieve_storage_servers(request: WSGIRequest):
 
 @require_auth
 def register_new_storage_server(request: WSGIRequest):
-    host, port = extract_socket(request)
+    s = extract_socket(request)
+    host, port = s
     param = get_query_params(request, ["space"], types=[int])
 
     if isinstance(param, HttpResponse):
