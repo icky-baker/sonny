@@ -146,7 +146,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": "/tmp/sonny.log",
+            "filename": "/tmp/naming.log",
         },
     },
     "loggers": {
