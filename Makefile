@@ -93,3 +93,11 @@ naming: |
 .PHONY: naming_prod
 naming_prod: |
 	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
+
+.PHONY: build_and_push
+build_and_push: |
+	docker-compose build && docker-compose push
+
+.PHONY: pull_and_up
+pull_and_up: |
+	docker-compose pull && docker-compose up -d
