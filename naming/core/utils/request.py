@@ -1,14 +1,10 @@
 import functools
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Union
 
 from core.models import StorageServer
 from django.core.handlers.wsgi import WSGIRequest
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
-
-
-def extract_socket(request: WSGIRequest) -> Tuple[str, str]:
-    return request.get_host().split(":")
 
 
 def get_query_params(request: WSGIRequest, names: List[str], types: list = None) -> Union[list, HttpResponse]:

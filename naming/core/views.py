@@ -5,13 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views import View
 
 from .models import StorageServer, StoredFile
-from .utils.request import (
-    extract_socket,
-    get_query_params,
-    require_auth,
-    servers_to_dict_list,
-    servers_to_json_response,
-)
+from .utils.request import get_query_params, require_auth, servers_to_dict_list, servers_to_json_response
 
 
 @require_auth
@@ -21,14 +15,12 @@ def retrieve_storage_servers(request: WSGIRequest):
 
 @require_auth
 def register_new_storage_server(request: WSGIRequest):
-    s = extract_socket(request)
-    host, port = s
-    param = get_query_params(request, ["space"], types=[int])
+    param = get_query_params(request, ["space", "host", "port"], types=[int])
 
     if isinstance(param, HttpResponse):
         return param
 
-    space = param[0]
+    space, host, port = param
     if not StorageServer.objects.filter(host=host, port=port).exists():
         new_server = StorageServer.objects.create(host=host, port=port, available_space=space)
         return JsonResponse({"id": new_server.id}, status=201)
@@ -38,12 +30,10 @@ def register_new_storage_server(request: WSGIRequest):
 
 @require_auth
 def recover_server(request: WSGIRequest):
-    host, port = extract_socket(request)
-
-    param = get_query_params(request, ["space"], types=[int])
+    param = get_query_params(request, ["space", "host", "port"], types=[int])
     if isinstance(param, HttpResponse):
         return param
-    space = param[0]
+    space, host, port = param
 
     try:
         server = StorageServer.objects.get(host=host, port=port)
