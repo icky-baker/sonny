@@ -13,7 +13,7 @@ services:
     volumes:
       - ./logs:/tmp/
 
-  storage:
+  storage1:
     image: "birdi7/storage"
     build:
       context: .
@@ -25,6 +25,20 @@ services:
 
     depends_on:
       - naming
+
+# TEST
+  # storage2:
+  #   image: "birdi7/storage"
+  #   build:
+  #     context: .
+  #     dockerfile: storage.dockerfile
+  #   ports:
+  #     - 8001:8000
+  #   volumes:
+  #     - ./logs:/tmp/
+
+  #   depends_on:
+  #     - naming
 
   db:
     image: postgres
