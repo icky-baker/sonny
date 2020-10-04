@@ -178,10 +178,16 @@ LOGGING = {
             "formatter": "verbose",
             "filename": "/tmp/storage.log",
         },
+        "error-file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": "/tmp/storage-error.log",
+        },
     },
     "loggers": {
         "common": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "error-file"],
             "level": "DEBUG",
             "propagate": False,
         },
