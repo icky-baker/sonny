@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 import shutil
@@ -15,6 +16,7 @@ def init():
     _, _, free = shutil.disk_usage("/")
     shutil.rmtree(settings.WORK_DIR)
     os.mkdir(settings.WORK_DIR)
+    logger.info("The initialization: done")
     return JsonResponse({"msg": {"available_size": free // (2 ** 30)}}, status=200)
 
 
@@ -23,7 +25,7 @@ def file_create(name, cwd):
         return JsonResponse({"msg": {"error": "file with such name already exists"}}, status=400)
     else:
         open(f"{settings.WORK_DIR}{cwd}{name}", "w+")  # name host port cwd
-
+        logger.info("The file: created")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
             data={
@@ -37,13 +39,14 @@ def file_create(name, cwd):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "file_create", "name": name, "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "file_create", "name": name, "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return HttpResponse(status=201)
 
@@ -63,7 +66,7 @@ def file_write(request, cwd):
 
     file = request.FILES["file"]
     handle_uploaded_file(file=file, cwd=cwd)
-
+    logger.info("The file: written")
     r = requests.post(
         f"{settings.HOST_NAMING}/api/file/approve/",
         data={
@@ -77,14 +80,15 @@ def file_write(request, cwd):
     )
     logger.info(f"Response from naming server: {r.status_code}")
 
-    host = r.content["replicate_to"]["host"]
-    port = r.content["replicate_to"]["port"]
-    r = requests.post(
-        f"{host}:{port}/api/dfs/",
-        file={"file": open(f"{settings.WORK_DIR}{cwd}{file.name}", "rb")},  # TODO check this
-        params={"command": "file_write", "cwd": cwd},
-    )
-    logger.info(f"Response from storage server-replica: {r.status_code}")
+    if r.json()["replicate_to"] is not None:
+        host = r.json()["replicate_to"]["host"]
+        port = r.json()["replicate_to"]["port"]
+        r = requests.post(
+            f"http://{host}:{port}/api/dfs/",
+            file={"file": open(f"{settings.WORK_DIR}{cwd}{file.name}", "rb")},  # TODO check this
+            params={"command": "file_write", "cwd": cwd},
+        )
+        logger.info(f"Response from storage server-replica: {r.status_code}")
 
     return HttpResponse(status=200)
 
@@ -94,6 +98,7 @@ def file_delete(name, cwd):
         return JsonResponse({"msg": {"error": "file with such name does not exists"}}, status=404)
     else:
         os.remove(f"{settings.WORK_DIR}{cwd}{name}")
+        logger.info("The file: deleted")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/delete/",
             data={},
@@ -101,13 +106,14 @@ def file_delete(name, cwd):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "file_delete", "name": name, "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "file_delete", "name": name, "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return HttpResponse(status=200)
 
@@ -138,6 +144,7 @@ def file_copy(name, cwd):
         spltd_name = name.split(".")
         target = f"{spltd_name[0]}_{now}.{'.'.join(spltd_name[1::])}"
         shutil.copyfile(f"{settings.WORK_DIR}{cwd}{name}", f"{settings.WORK_DIR}{cwd}{target}")
+        logger.info("The file: copied")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
             data={
@@ -151,13 +158,14 @@ def file_copy(name, cwd):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "file_copy", "name": name, "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "file_copy", "name": name, "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return JsonResponse({"msg": {"filename": target}}, status=404)
 
@@ -167,6 +175,7 @@ def file_move(name, cwd, path):
         return JsonResponse({"msg": {"error": "file with such name does not exists"}}, status=404)
     else:
         shutil.move(f"{settings.WORK_DIR}{cwd}{name}", f"{settings.WORK_DIR}{path}{name}")
+        logger.info("The file: moved")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/delete/",
             data={},
@@ -174,13 +183,14 @@ def file_move(name, cwd, path):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "file_delete", "name": name, "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "file_delete", "name": name, "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
@@ -195,13 +205,14 @@ def file_move(name, cwd, path):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "file_create", "name": name, "cwd": path},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "file_create", "name": name, "cwd": path},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return HttpResponse(status=200)
 
@@ -231,11 +242,12 @@ def dir_read(cwd):
         )
 
 
-def dir_make(name, cwd):  # egor
+def dir_make(name, cwd):
     if os.path.isdir(f"{settings.WORK_DIR}{cwd}"):
         return JsonResponse({"msg": {"error": "directory with such name already exists"}}, status=400)
     else:
         os.mkdir(f"{settings.WORK_DIR}{cwd}{name}")
+        logger.info("The directory: created")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
             data={},
@@ -243,13 +255,14 @@ def dir_make(name, cwd):  # egor
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "dir_make", "name": name, "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "dir_make", "name": name, "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return HttpResponse(status=201)
 
@@ -259,6 +272,7 @@ def dir_delete(cwd):
         return JsonResponse({"msg": {"error": "directory with such name already exists"}}, status=400)
     else:
         shutil.rmtree(f"{settings.WORK_DIR}{cwd}")
+        logger.info("The directory: deleted")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/delete/",
             data={},
@@ -266,12 +280,13 @@ def dir_delete(cwd):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        host = r.content["replicate_to"]["host"]
-        port = r.content["replicate_to"]["port"]
-        r = requests.get(
-            f"{host}:{port}/api/dfs/",
-            params={"command": "dir_delete", "cwd": cwd},
-        )
-        logger.info(f"Response from storage server-replica: {r.status_code}")
+        if r.json()["replicate_to"] is not None:
+            host = r.json()["replicate_to"]["host"]
+            port = r.json()["replicate_to"]["port"]
+            r = requests.get(
+                f"http://{host}:{port}/api/dfs/",
+                params={"command": "dir_delete", "cwd": cwd},
+            )
+            logger.info(f"Response from storage server-replica: {r.status_code}")
 
         return HttpResponse(status=200)
