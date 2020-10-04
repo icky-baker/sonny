@@ -105,7 +105,7 @@ def file_approve(request: WSGIRequest):
         StorageServer.objects.get_active().filter(available_space__gt=new_file.size).exclude(files=new_file)
     )
     if hosts_without_file.exists():
-        return JsonResponse({"replicate_to": model_to_dict(hosts_without_file, ["host", "port"])}, status=200)
+        return JsonResponse({"replicate_to": model_to_dict(hosts_without_file.first(), ["host", "port"])}, status=200)
 
     return JsonResponse({"replicate_to": None}, status=200)
 
@@ -127,7 +127,7 @@ def file_delete(request: WSGIRequest):
     file.hosts.remove(StorageServer.objects.get(host=host, port=port))
     file.save()
     if file.hosts.exists():
-        return JsonResponse({"replicate_to": model_to_dict(file.hosts.first())}, status=200)
+        return JsonResponse({"replicate_to": model_to_dict(file.hosts.first(), ["host", "port"])}, status=200)
     else:
         return JsonResponse({"replicate_to": None}, status=200)
 
