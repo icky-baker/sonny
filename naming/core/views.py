@@ -11,6 +11,7 @@ from core.utils.request import (
     servers_to_json_response,
 )
 from django.core.handlers.wsgi import WSGIRequest
+from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 
@@ -100,10 +101,13 @@ def file_approve(request: WSGIRequest):
     new_file.hosts.add(sender_host)
     new_file.save()
 
-    # TODO:
-    # возвращать тут один сервер для репликации, если она еще нужна. если не нужна, пустой список
-    # каскадно будет реплицировать
-    return HttpResponse(status=200)
+    hosts_without_file = (
+        StorageServer.objects.get_active().filter(available_space__gt=new_file.size).exclude(files=new_file)
+    )
+    if hosts_without_file.exists():
+        return JsonResponse({"replicate_to": model_to_dict(hosts_without_file, ["host", "port"])}, status=200)
+
+    return JsonResponse({"replicate_to": None}, status=200)
 
 
 def file_delete(request: WSGIRequest):
@@ -120,11 +124,12 @@ def file_delete(request: WSGIRequest):
     except StoredFile.DoesNotExist:
         return HttpResponse(status=400)
 
-    file.detele()
-    # TODO:
-    # возвращать тут один сервер для репликации, если она еще нужна. если не нужна, пустой список
-    # каскадно будет реплицировать
-    return HttpResponse(status=200)
+    file.hosts.remove(StorageServer.objects.get(host=host, port=port))
+    file.save()
+    if file.hosts.exists():
+        return JsonResponse({"replicate_to": model_to_dict(file.hosts.first())}, status=200)
+    else:
+        return JsonResponse({"replicate_to": None}, status=200)
 
 
 def retrieve_directory_content(request: WSGIRequest):

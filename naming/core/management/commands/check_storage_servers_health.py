@@ -1,8 +1,9 @@
 import logging
 
 import requests
-from core.models import StorageServer
+from core.models import StorageServer, StoredFile
 from django.core.management.base import BaseCommand
+from django.forms import model_to_dict
 
 logger = logging.getLogger("common")
 
@@ -12,12 +13,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for server in StorageServer.objects.all():
+            files_to_replicate = StoredFile.objects.filter(size__lt=server.available_space).exclude(hosts=server)
+
             try:
-                response = requests.get(f"{server.get_url()}api", timeout=1)
+                response = requests.post(
+                    f"{server.get_url()}api",
+                    timeout=1,
+                    data={"files_to_replicate": [model_to_dict(m) for m in files_to_replicate]},
+                )
             except (requests.Timeout, requests.ConnectionError):
                 response = None
 
-            new_status = None
             if response and response.status_code == 200:
                 new_status = StorageServer.StorageServerStatuses.RUNNING
             else:
