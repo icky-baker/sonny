@@ -1,4 +1,5 @@
 import json
+import logging
 from random import choice
 
 from core.models import StorageServer, StoredFile
@@ -14,6 +15,8 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.views import View
+
+logger = logging.getLogger("common")
 
 
 @require_auth
@@ -95,6 +98,7 @@ def file_approve(request: WSGIRequest):
     file_name, host, port, cwd = param
     full_name = get_full_name(cwd, file_name)
 
+    logger.critical(f"body={request.body}")
     file_meta_info = json.loads(request.body)
     new_file = StoredFile.objects.create(name=full_name, size=file_meta_info["size"], meta=file_meta_info)
     sender_host = StorageServer.objects.get(host=host, port=port)
