@@ -112,5 +112,5 @@ storage: |
 
 .PHONY: storage_prod
 storage_prod: |
-	sleep 2;
+	sleep 2	;
 	$(base_python) manage.py migrate; gunicorn -b 0.0.0.0:8000 dfs.wsgi
