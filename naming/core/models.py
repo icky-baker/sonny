@@ -3,6 +3,7 @@ from typing import List
 from django.core.validators import validate_ipv4_address
 from django.db import models
 from django.db.models import QuerySet
+from django.forms import model_to_dict
 
 
 class StorageServerManager(models.Manager):
@@ -65,7 +66,7 @@ class StoredFile(models.Model):
     name = models.TextField(verbose_name="File name")
     size = models.PositiveBigIntegerField(verbose_name="Size of the file, in bytes", null=True)
 
-    meta = models.JSONField(verbose_name="Meta information about file", null=False, default=dict)
+    meta = models.JSONField(verbose_name="Meta information about file", null=False, blank=True, default=dict)
 
     def is_file(self):
         return self.size is not None
@@ -78,6 +79,11 @@ class StoredFile(models.Model):
             raise ValueError("Not a directory")
 
         return StoredFile.objects.filter(name__startswith=self.name)
+
+    def to_dict(self):
+        info = model_to_dict(self)
+        info["hosts"] = list(map(model_to_dict, self.hosts.all()))
+        return info
 
 
 __all__ = [StorageServer, StoredFile]
