@@ -23,10 +23,13 @@ def initialize():
                       headers={"Server-Hash":"suchsecret"})
     total_available_space = 0
     for host in r.json()["hosts"]:
+        req = requests.get(url="http://"+str(host["host"])+':'+str(host["port"])+"/api/dfs/", 
+                     params = {"command":"init", "cwd":CWD})
+        
         ip, space = host["host"], host["available_space"]
         total_available_space += space
-        ip, space = host["host"], host["available_space"]
         typer.echo(f"Host {ip} : {space} bytes available")
+
     
     typer.echo(f"\nTotal {total_available_space} available")
 
@@ -158,10 +161,7 @@ def open_directory(name:str):
     r = requests.get(url = "http://"+IP+':'+PORT+"/api/directory/", 
                     params = {"name":name, "cwd":CWD},
                     headers={"Server-Hash":"suchsecret"})
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-    
-    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
-                     params = {"command":"open_directory","name":name, "cwd":CWD})
+
     if (r.status_code==200):
         if(name=='..'):
             CWD = CWD[CWD.rfind('/')+1:]
@@ -179,7 +179,7 @@ def read_directory(path:Optional[str] = typer.Argument("current working director
     storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
     
     r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
-                     params = {"command":"read_directory", "cwd":path})
+                     params = {"command":"dir_read", "cwd":path})
     typer.echo(r.text)
 
 @app.command()
@@ -191,7 +191,7 @@ def make_directory(directory_name:str, path:Optional[str] = typer.Argument(CWD))
     storage_ip, storage_port = r.json()["hosts"][storage_server]["host"], r.json()["hosts"][storage_server]["port"]
 
     r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
-                     params = {"command":"make_directory", "cwd":path, "name":directory_name})
+                     params = {"command":"dir_make", "cwd":path, "name":directory_name})
 
 @app.command()
 def delete_directory(path:Optional[str] = typer.Argument(CWD)):
@@ -202,7 +202,7 @@ def delete_directory(path:Optional[str] = typer.Argument(CWD)):
     storage_ip, storage_port = r.json()["hosts"][storage_server]["host"], r.json()["hosts"][storage_server]["port"]
     
     r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
-                     params = {"command":"delete_directory", "cwd":path})
+                     params = {"command":"dir_delete", "cwd":path})
 
     typer.echo(r.text)
 
