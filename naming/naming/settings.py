@@ -47,6 +47,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "request_logging.middleware.LoggingMiddleware",
 ]
 
 ROOT_URLCONF = "naming.urls"
@@ -164,6 +165,9 @@ LOGGING = {
             "handlers": ["console", "file"],
             "level": "DEBUG",
             "propagate": False,
+        },
+        "basehttp": {
+            "level": "ERROR",
         },
     },
 }

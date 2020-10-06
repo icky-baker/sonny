@@ -24,11 +24,6 @@ HOST_NAMING = "http://naming:80"
 HOST_IP = socket.gethostbyname(socket.gethostname())
 HOST_PORT = 8000
 
-# REGISTRY
-registry(HOST_NAMING, HOST_IP, HOST_PORT)
-create_workdir(WORK_DIR)
-
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "50y!c+^!&l48cmuo*^sx^hykb0145t7fdz!_(vk9m%(j7jepep"
 
@@ -57,6 +52,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "request_logging.middleware.LoggingMiddleware",
 ]
 
 ROOT_URLCONF = "dfs.urls"

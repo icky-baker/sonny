@@ -9,7 +9,8 @@ import tqdm
 import typer
 
 app = typer.Typer()
-IP = "3.134.152.50"
+# IP = "3.134.152.50"
+IP = "naming"
 PORT = "80"
 # get zapros file_create [command] [filename] [directory name]
 # ip/api/dfs

@@ -35,9 +35,11 @@ def register_new_storage_server(request: WSGIRequest):
     if not StorageServer.objects.filter(host=host, port=port).exists():
         server = StorageServer.objects.create(host=host, port=port, available_space=space)
     else:
+
         server = StorageServer.objects.get(host=host, port=port)
         server.update(status=server.StorageServerStatuses.DOWN, available_space=space)
 
+    logger.info("New storage server: %s", server)
     return JsonResponse({"id": server.id, "files": file_list_to_dict_list(StoredFile.objects.all())}, status=200)
 
 

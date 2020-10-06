@@ -19,5 +19,5 @@ COPY naming/ /app/
 RUN mv /app/naming/env_settings.py.docker /app/naming/env_settings.py
 
 # CMD ["gunicorn", "-b", "0.0.0.0:8000", "naming.wsgi"]
-CMD ["make", "naming_prod"]
-# CMD ["make", "naming_preprod"]
+# CMD ["make", "naming_prod"]
+CMD ["make", "naming_preprod"]
