@@ -15,11 +15,9 @@ import os
 import shutil
 import socket
 
-import requests
+from .utils import create_workdir, registry
 
-logger = logging.getLogger("common")
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Base conf
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WORK_DIR = BASE_DIR + "/var"
 HOST_NAMING = "http://naming:80"
@@ -27,22 +25,9 @@ HOST_IP = socket.gethostbyname(socket.gethostname())
 HOST_PORT = 8000
 
 # REGISTRY
-_, _, free_space = shutil.disk_usage("/")
-r = requests.get(
-    f"{HOST_NAMING}/api/server/register/",
-    params={"space": free_space, "host": HOST_IP, "port": HOST_PORT},
-)
-logger.info(f"Response from naming server: {r.status_code}")
+registry(HOST_NAMING, HOST_IP, HOST_PORT)
+create_workdir(WORK_DIR)
 
-try:
-    os.mkdir(WORK_DIR)
-except OSError:
-    print("Working directory already exists")
-else:
-    print("Successfully created the working directory")
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "50y!c+^!&l48cmuo*^sx^hykb0145t7fdz!_(vk9m%(j7jepep"
