@@ -58,6 +58,6 @@ def servers_to_json_response(servers: Iterable[StorageServer], fields: List[str]
 
 
 def file_list_to_dict_list(files: Iterable[StoredFile], fields: List[str] = None) -> List[Dict[str, Any]]:
-    fields = fields or ["name", "size", "meta"]
+    # fields = fields or ["name", "size", "meta"]
 
-    return list(map(lambda m: model_to_dict(m, fields), files))
+    return list(map(lambda m: m.to_dict(), files))
