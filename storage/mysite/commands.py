@@ -12,9 +12,9 @@ logger = logging.getLogger("common")
 
 
 def init():
-    _, _, free = shutil.disk_usage("/")
     shutil.rmtree(settings.WORK_DIR)
     os.mkdir(settings.WORK_DIR)
+    _, _, free = shutil.disk_usage("/")  # Get free space
     logger.info("The initialization: done")
     return JsonResponse({"msg": {"available_size": free // (2 ** 30)}}, status=200)
 
@@ -23,7 +23,7 @@ def file_create(name, cwd):
     if os.path.isfile(f"{settings.WORK_DIR}{cwd}{name}"):
         return JsonResponse({"msg": {"error": "file with such name already exists"}}, status=400)
     else:
-        open(f"{settings.WORK_DIR}{cwd}{name}", "w+")  # name host port cwd
+        open(f"{settings.WORK_DIR}{cwd}{name}", "w+")
         logger.info("The file: created")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
@@ -144,6 +144,7 @@ def file_copy(name, cwd):
         target = f"{spltd_name[0]}_{now}.{'.'.join(spltd_name[1::])}"
         shutil.copyfile(f"{settings.WORK_DIR}{cwd}{name}", f"{settings.WORK_DIR}{cwd}{target}")
         logger.info("The file: copied")
+
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
             data={
