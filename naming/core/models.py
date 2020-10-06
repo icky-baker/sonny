@@ -77,7 +77,7 @@ class StoredFile(models.Model):
         if not self.is_directory():
             raise ValueError("Not a directory")
 
-        return StoredFile.objects.filter(name__contains=self.name)
+        return StoredFile.objects.filter(name__startswith=self.name)
 
 
 __all__ = [StorageServer, StoredFile]
