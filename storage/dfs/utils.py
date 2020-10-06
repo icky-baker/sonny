@@ -18,12 +18,12 @@ def recovery(resp):
         size = item.get("size", None)
         hosts = item.get("hosts", None)
 
-        if size is not None:  # if this is a file
+        if size is not None:  # If this is a file
             if os.path.isfile(f"{settings.WORK_DIR}{name}"):
                 if len(hosts) == 0:  # A file only on this server
                     os.remove(f"{settings.WORK_DIR}{name}")
-            else:  # A file doesn't exists on this server
-                host = choice(hosts)
+            else:  # A file doesn't exist on this server
+                host = choice(hosts)  # Get random host
                 r = requests.get(
                     f"http://{host.get('host')}:{host.get('port')}/api/dfs/",
                     params={"command": "file_read", "name": name[1::], "cwd": "/"},
@@ -32,7 +32,7 @@ def recovery(resp):
                     with open(name, "wb+") as fp:
                         fp.write(r.content)
 
-        else:  # if this is a directory
+        else:  # If this is a directory
             if os.path.isdir(name):
                 if len(hosts) == 0:  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
