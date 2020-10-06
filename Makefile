@@ -96,7 +96,7 @@ naming_preprod: |
 
 .PHONY: naming_prod
 naming_prod: |
-	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
+	cron; $(base_python) manage.py migrate; gunicorn --http -b 0.0.0.0:80 naming.wsgi
 
 .PHONY: build_and_push
 build_and_push: |
@@ -113,4 +113,4 @@ storage: |
 .PHONY: storage_prod
 storage_prod: |
 	sleep 2	;
-	$(base_python) manage.py migrate; gunicorn -b 0.0.0.0:8000 dfs.wsgi
+	$(base_python) manage.py migrate; gunicorn -w 5 --http -b 0.0.0.0:8000 dfs.wsgi

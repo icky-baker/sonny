@@ -9,6 +9,4 @@ RUN pip install -r requirements.txt
 COPY Makefile /app/
 COPY storage/ /app/
 
-# CMD ["gunicorn", "-b", "0.0.0.0:8000", "naming.wsgi"]
-# CMD ["make", "naming_prod"]
 CMD ["make", "storage_prod"]
