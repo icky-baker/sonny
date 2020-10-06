@@ -23,7 +23,9 @@ def file_create(name, cwd):
     if os.path.isfile(f"{settings.WORK_DIR}{cwd}{name}"):
         return JsonResponse({"msg": {"error": "file with such name already exists"}}, status=400)
     else:
-        open(f"{settings.WORK_DIR}{cwd}{name}", "w+")
+        with open(f"{settings.WORK_DIR}{cwd}{name}", "w+") as _:
+            pass  # name host port cwd
+
         logger.info("The file: created")
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",

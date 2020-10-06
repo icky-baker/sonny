@@ -1,4 +1,5 @@
 import os
+import pathlib
 import random
 import socket
 import sys
@@ -16,6 +17,7 @@ PORT = "80"
 # ip/api/dfs
 
 CWD = "/"  # should start and end with '/'
+BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 
 
 @app.command()
@@ -66,13 +68,13 @@ def file_read(filename: str):
         headers={"Server-Hash": "suchsecret"},
     )
 
-    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    storage_ip, storage_port = str(r.json()[0]["host"]), str(r.json()[0]["port"])
     r = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_read", "name": filename, "cwd": CWD},
     )
     if r.status_code == 200:
-        with open(os.path.join(CWD, filename), "w") as fp:
+        with open(os.path.join(BASE_DIR, filename), "wb+") as fp:
             print(r.content)
             fp.write(r.content)
     else:

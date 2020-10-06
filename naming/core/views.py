@@ -118,7 +118,9 @@ def file_approve(request: WSGIRequest):
     full_name = get_full_name(cwd, file_name)
 
     file_meta_info = request.POST
-    new_file = StoredFile.objects.create(name=full_name, size=file_meta_info.get("size", None), meta=file_meta_info)
+    new_file, _ = StoredFile.objects.get_or_create(
+        name=full_name, size=file_meta_info.get("size", None), meta=file_meta_info
+    )
     sender_host = StorageServer.objects.get(host=host, port=port)
     new_file.hosts.add(sender_host)
     new_file.save()
