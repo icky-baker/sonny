@@ -46,7 +46,7 @@ def file_create(filename: str):
         headers={"Server-Hash": "suchsecret"},
     )
 
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
     print(storage_ip, storage_port)
 
     r = requests.get(
@@ -65,13 +65,11 @@ def file_read(filename: str):
         headers={"Server-Hash": "suchsecret"},
     )
 
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
-        params={"command": "file_read", "name": filename, "cwd": CWD},
-    )
-    if r.status_code == 200:
-        with open(os.path.join(CWD, file), "w") as fp:
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"file_read","name":filename, "cwd":CWD})
+    if (r.status_code == 200):
+        with open(os.path.join(CWD, file), 'w') as fp:
             print(r.content)
             fp.write(r.content)
     else:
@@ -96,15 +94,18 @@ def file_write(path_to_the_file: str):
     typer.echo(r.content)
 
     typer.echo(f"Uploading the file {filename} to the server")
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-    url = "http://" + storage_ip + ":" + storage_port + "/api/dfs/"
-    files = {"files": open(filename, "rb")}
-    values = {"file": open(filename, "rb")}  # filename}
-    # Данил: post
-    # в теле - key="file", value - файл
-    params = {"command": "file_write", "name": filename, "cwd": CWD}
-    r = requests.post(url=url, files=files, data=values, params=params)
-    if r.status_code == 200:
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    url="http://"+storage_ip+':'+storage_port+"/api/dfs/"
+    files={'files': open(filename,'rb')}
+    values={'file' : open(filename,'rb')}#filename}
+    #Данил: post
+    #в теле - key="file", value - файл
+    params = {"command":"file_write","name":filename,"cwd":CWD}
+    r=requests.post(url=url,
+                    files=files,
+                    data=values,
+                    params=params)
+    if (r.status_code == 200):
         typer.echo(f"{filename} is uploaded successfully!")
     else:
         typer.echo(r.content)
@@ -123,8 +124,8 @@ def file_delete(filename: str):
         headers={"Server-Hash": "suchsecret"},
     )
     typer.echo(r.content)
-
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
+    
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
 
     r = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
@@ -155,11 +156,9 @@ def file_copy(filename: str):
         headers={"Server-Hash": "suchsecret"},
     )
 
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
-        params={"command": "file_copy", "name": filename, "cwd": CWD},
-    )
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"file_copy","name":filename, "cwd":CWD})
     typer.echo(r.text)
 
 
@@ -172,12 +171,10 @@ def file_move(filename: str, destination_path: str):
         headers={"Server-Hash": "suchsecret"},
     )
 
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
-        params={"command": "file_move", "name": filename, "cwd": CWD, "path": destination_path},
-    )
-
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"file_move","name":filename, "cwd":CWD, "path":destination_path})
+    
 
 @app.command()
 def open_directory(name: str):
@@ -199,44 +196,39 @@ def open_directory(name: str):
 
 
 @app.command()
-def read_directory(path: Optional[str] = typer.Argument("current working directory")):
-    # Should return list of files, which are stored in the directory.
-    r = requests.get(
-        url="http://" + IP + ":" + PORT + "/api/directory/",
-        params={"name": path, "cwd": CWD},
-        headers={"Server-Hash": "suchsecret"},
-    )
-    storage_ip, storage_port = r.json()["hosts"][0]["host"], r.json()["hosts"][0]["port"]
-
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/", params={"command": "dir_read", "cwd": path}
-    )
+def read_directory(path:Optional[str] = typer.Argument(CWD)):
+# Should return list of files, which are stored in the directory.
+    r = requests.get(url = "http://"+IP+':'+PORT+"/api/directory/", 
+                    params = {"name":path, "cwd":CWD},
+                    headers={"Server-Hash":"suchsecret"})
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"dir_read", "cwd":path})
     typer.echo(r.text)
 
 
 @app.command()
-def make_directory(directory_name: str, path: Optional[str] = typer.Argument(CWD)):
-    # Should allow to create a new directory.
-    r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
-    storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
-    storage_ip, storage_port = r.json()["hosts"][storage_server]["host"], r.json()["hosts"][storage_server]["port"]
-
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
-        params={"command": "dir_make", "cwd": path, "name": directory_name},
-    )
-
+def make_directory(directory_name:str, path:Optional[str] = typer.Argument(CWD)):
+# Should allow to create a new directory.
+    r = requests.post(url="http://"+IP+':'+PORT+"/api/hosts/", 
+                      headers={"Server-Hash":"suchsecret"})
+    storage_server = random.randint(0,len(r.json()["hosts"])-1)
+    storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(r.json()["hosts"][storage_server]["port"])
+    typer.echo(path)
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"dir_make", "cwd":path, "name":directory_name})
 
 @app.command()
-def delete_directory(path: Optional[str] = typer.Argument(CWD)):
-    # Should allow to delete directory.  If the directory contains files the system should ask for confirmation from the user before deletion.
-    r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
-    storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
-    storage_ip, storage_port = r.json()["hosts"][storage_server]["host"], r.json()["hosts"][storage_server]["port"]
-
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/", params={"command": "dir_delete", "cwd": path}
-    )
+def delete_directory(path:Optional[str] = typer.Argument(CWD)):
+#Should allow to delete directory.  If the directory contains files the system should ask for confirmation from the user before deletion. 
+    r = requests.post(url="http://"+IP+':'+PORT+"/api/hosts/", 
+                      headers={"Server-Hash":"suchsecret"})
+    storage_server = random.randint(0,len(r.json()["hosts"])-1)
+    storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(r.json()["hosts"][storage_server]["port"])
+    
+    r = requests.get(url="http://"+storage_ip+':'+storage_port+"/api/dfs/", 
+                     params = {"command":"dir_delete", "cwd":path})
 
     typer.echo(r.text)
 
