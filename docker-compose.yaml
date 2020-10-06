@@ -21,11 +21,11 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - /tmp/ds_dfs:/app/var/
+#      - /tmp/ds_dfs:/app/var/
 
 #    deploy:
-#      replicas: 10
-#
+#      replicas: 3
+
     depends_on:
       - naming
 
@@ -37,7 +37,7 @@ services:
 
     command: bash
     volumes:
-      - .:/client
+      - ./client_data:/app/data
 
     depends_on:
       - storage

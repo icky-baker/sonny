@@ -2,10 +2,11 @@ FROM python:3.8.5-buster
 ENV WORKDIR=/app/
 
 WORKDIR /app/
-EXPOSE 80
 
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
+
+EXPOSE 80
 
 RUN apt-get update && apt-get -y install cron
 COPY naming/core/crontab /etc/cron.d/naming-crontab
