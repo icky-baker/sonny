@@ -86,7 +86,8 @@ def file_write(request, cwd):
         port = r.json()["replicate_to"]["port"]
         r = requests.post(
             f"http://{host}:{port}/api/dfs/",
-            file={"file": open(f"{settings.WORK_DIR}{cwd}{file.name}", "rb")},  # TODO check this
+            files={"file": open(f"{settings.WORK_DIR}{cwd}{file.name}", "rb")},
+            # data={"file": open(f"{settings.WORK_DIR}{cwd}{file.name}", "rb")},
             params={"command": "file_write", "cwd": cwd},
         )
         logger.info(f"Response from storage server-replica: {r.status_code}")
@@ -245,7 +246,7 @@ def dir_read(cwd):
 
 
 def dir_make(name, cwd):
-    if os.path.isdir(f"{settings.WORK_DIR}{cwd}"):
+    if os.path.exists(f"{settings.WORK_DIR}{cwd}{name}"):
         return JsonResponse({"msg": {"error": "directory with such name already exists"}}, status=400)
     else:
         os.mkdir(f"{settings.WORK_DIR}{cwd}{name}")
@@ -270,8 +271,8 @@ def dir_make(name, cwd):
 
 
 def dir_delete(cwd):
-    if not os.path.isdir(f"{settings.WORK_DIR}{cwd}"):
-        return JsonResponse({"msg": {"error": "directory with such name already exists"}}, status=400)
+    if not os.path.exists(f"{settings.WORK_DIR}{cwd}"):
+        return JsonResponse({"msg": {"error": "directory with such name doesn't exist"}}, status=400)
     else:
         shutil.rmtree(f"{settings.WORK_DIR}{cwd}")
         logger.info("The directory: deleted")

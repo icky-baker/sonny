@@ -18,6 +18,7 @@ PORT = "80"
 
 CWD = "/"  # should start and end with '/'
 BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
+SCRIPT_DIR = BASE_DIR.parent
 
 
 @app.command()
@@ -86,8 +87,9 @@ def file_read(filename: str):
 def file_write(path_to_the_file: str):
     # Should allow to put any file to DFS (upload a file from the Client side to the DFS)
 
-    size = os.path.getsize(path_to_the_file)  # in bytes
-    filename = path_to_the_file[path_to_the_file.rindex("/") + 1 :]
+    size = os.path.getsize(SCRIPT_DIR / path_to_the_file)  # in bytes
+    filename = SCRIPT_DIR / path_to_the_file
+    # filename = path_to_the_file[path_to_the_file.rindex("/") + 1 :]
     # typer.echo(size)
     # typer.echo(path_to_the_file[path_to_the_file.rindex('/')+1:])
 
@@ -101,8 +103,9 @@ def file_write(path_to_the_file: str):
     typer.echo(f"Uploading the file {filename} to the server")
     storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
     url = "http://" + storage_ip + ":" + storage_port + "/api/dfs/"
-    files = {"files": open(filename, "rb")}
-    values = {"file": open(filename, "rb")}  # filename}
+    files = {"file": open(filename, "rb")}
+    # values = {"file": open(filename, "rb")}  # filename}
+    values = {}
     # Данил: post
     # в теле - key="file", value - файл
     params = {"command": "file_write", "name": filename, "cwd": CWD}
@@ -127,12 +130,15 @@ def file_delete(filename: str):
     )
     typer.echo(r.content)
 
-    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
+    if r.json()["hosts"]:
+        storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
 
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
-        params={"command": "file_delete", "name": filename, "cwd": CWD},
-    )
+        r = requests.get(
+            url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
+            params={"command": "file_delete", "name": filename, "cwd": CWD},
+        )
+    else:
+        typer.echo("Such file doesn't exist")
 
 
 @app.command()
@@ -144,8 +150,13 @@ def file_info(filename: str):
         params={"name": filename, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
+    if r.status_code == 404:
+        typer.echo("Such file doesn't exist")
+        return
 
-    typer.echo(r.text)
+    typer.echo(r.content)
+    # TODO: beautiful print of file info
+    # {"hosts": [{"host": "192.168.224.4", "port": 8000}], "file_info": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 22:32:57 2020", "change time": "Tue Oct  6 22:32:57 2020", "modified time": "Tue Oct  6 22:32:57 2020"}}
 
 
 @app.command()
@@ -187,7 +198,7 @@ def open_directory(name: str):
     # Should allow to change directory
 
     global CWD
-    # тут надо проверку на валидность name
+
     r = requests.get(
         url="http://" + IP + ":" + PORT + "/api/directory/",
         params={"name": name, "cwd": CWD},
@@ -199,6 +210,9 @@ def open_directory(name: str):
             CWD = CWD[CWD.rfind("/") + 1 :]
         else:
             CWD += name + "/"
+        typer.echo(f"Current working directory is {CWD}")
+    else:
+        typer.echo("Such directory doesn't exist")
 
 
 @app.command()
@@ -209,31 +223,40 @@ def read_directory(path: Optional[str] = typer.Argument(CWD)):
         params={"name": path, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
-    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
 
-    r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/", params={"command": "dir_read", "cwd": path}
-    )
-    typer.echo(r.text)
+    r_json = r.json()  # noqa
+    # b'{"files": [{"id": 1, "name": "/dd", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 2, "name": "/dd2", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 3, "name": "/dd3", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 4, "name": "/dd/canvas.png", "size": 12345922, "meta": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 23:18:25 2020", "change time": "Tue Oct  6 23:18:25 2020", "modified time": "Tue Oct  6 23:18:25 2020"}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}]}'
+
+    # TODO: нужно выводить инфу из запроса к неймингу
+    # пример есть в комментарии наверху
+    # если size None - то это директория, иначе - файл
 
 
 @app.command()
-def make_directory(directory_name: str, path: Optional[str] = typer.Argument(CWD)):
+def make_directory(directory_name: str, path: Optional[str] = None):
+    if not path:
+        path = CWD
+
     # Should allow to create a new directory.
     r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
     storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
     storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(
         r.json()["hosts"][storage_server]["port"]
     )
-    typer.echo(path)
+
     r = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "dir_make", "cwd": path, "name": directory_name},
     )
 
+    typer.echo(f"Created directory {path}{directory_name}/")
+
 
 @app.command()
-def delete_directory(path: Optional[str] = typer.Argument(CWD)):
+def delete_directory(directory_name: str, path: Optional[str] = None):
+    if not path:
+        path = CWD
+
     # Should allow to delete directory.  If the directory contains files the system should ask for confirmation from the user before deletion.
     r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
     storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
@@ -242,10 +265,14 @@ def delete_directory(path: Optional[str] = typer.Argument(CWD)):
     )
 
     r = requests.get(
-        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/", params={"command": "dir_delete", "cwd": path}
+        url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
+        params={"command": "dir_delete", "cwd": f"{path}{directory_name}"},
     )
 
-    typer.echo(r.text)
+    if r.status_code == 200:
+        typer.echo(r.text)
+    elif r.status_code == 400:
+        typer.echo("Directory with such name doesn't exist")
 
 
 if __name__ == "__main__":

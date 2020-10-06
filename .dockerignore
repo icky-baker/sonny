@@ -130,3 +130,5 @@ dmypy.json
 # Idea files
 .idea
 .vscode
+
+client_data/

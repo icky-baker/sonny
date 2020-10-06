@@ -1,5 +1,5 @@
 import functools
-from typing import Any, Dict, Iterable, List, Union
+from typing import Any, Dict, Iterable, List, Optional, Union
 
 from core.models import StorageServer, StoredFile
 from django.core.handlers.wsgi import WSGIRequest
@@ -49,9 +49,15 @@ def servers_to_dict_list(
     return list(map(lambda m: model_to_dict(m, fields), servers))
 
 
-def servers_to_json_response(servers: Iterable[StorageServer], fields: List[str] = None) -> HttpResponse:
+def servers_to_json_response(
+    servers: Iterable[StorageServer], fields: List[str] = None, file: Optional[StoredFile] = None
+) -> HttpResponse:
+    res = {"hosts": servers_to_dict_list(servers, fields)}
+    if file:
+        res["file_info"] = file.meta
+
     return JsonResponse(
-        servers_to_dict_list(servers, fields),
+        res,
         status=200,
         safe=False,
     )

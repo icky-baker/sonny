@@ -76,10 +76,11 @@ class FileView(View):
                     choice(list(stored_file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING))),
                 ],
                 fields=["host", "port"],
+                file=stored_file,
             )
 
         except StoredFile.DoesNotExist:
-            return HttpResponse("Such file doesn't exist", status=404)
+            return HttpResponse({"hosts": []}, status=404)
 
     def post(self, request: WSGIRequest):
         param = get_query_params(request, ["name", "size", "cwd"])
@@ -118,16 +119,21 @@ def file_approve(request: WSGIRequest):
     full_name = get_full_name(cwd, file_name)
 
     file_meta_info = request.POST
-    new_file, _ = StoredFile.objects.get_or_create(
-        name=full_name, size=file_meta_info.get("size", None), meta=file_meta_info
-    )
+    if StoredFile.objects.filter(name=full_name).exists():
+        new_file = StoredFile.objects.get(name=full_name)
+    else:
+        new_file = StoredFile.objects.create(
+            name=full_name, size=file_meta_info.get("size", None), meta=file_meta_info
+        )
+
     sender_host = StorageServer.objects.get(host=host, port=port)
     new_file.hosts.add(sender_host)
     new_file.save()
 
-    hosts_without_file = (
-        StorageServer.objects.get_active().filter(available_space__gt=new_file.size).exclude(files=new_file)
-    )
+    hosts_without_file = StorageServer.objects.get_active().exclude(files=new_file)
+    if new_file.size:
+        hosts_without_file = hosts_without_file.filter(available_space__gt=new_file.size)
+
     if hosts_without_file.exists():
         return JsonResponse({"replicate_to": model_to_dict(hosts_without_file.first(), ["host", "port"])}, status=200)
 
@@ -142,6 +148,8 @@ def file_delete(request: WSGIRequest):
 
     file_name, host, port, cwd = param
     full_name = get_full_name(cwd, file_name)
+    logger.info("param", param)
+    logger.info("full_name = %s", full_name)
 
     try:
         file = StoredFile.objects.get(name=full_name)
@@ -149,6 +157,11 @@ def file_delete(request: WSGIRequest):
         return HttpResponse(status=400)
 
     file.hosts.remove(StorageServer.objects.get(host=host, port=port))
+
+    if list(file.hosts.all()):
+        file.delete()
+        return JsonResponse({"replicate_to": None}, status=200)
+
     file.save()
     if file.hosts.exists():
         return JsonResponse({"replicate_to": model_to_dict(file.hosts.first(), ["host", "port"])}, status=200)
@@ -157,6 +170,10 @@ def file_delete(request: WSGIRequest):
 
 
 def retrieve_directory_content(request: WSGIRequest):
+    # TODO:
+    # пример: /dd, /dd2, /dd3, /dd/canvas.png
+    # на запрос /dd вернет все, а должна не все
+    # FIXME
     param = get_query_params(request, ["name", "cwd"])
     if isinstance(param, HttpResponse):
         return param
