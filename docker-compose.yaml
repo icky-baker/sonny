@@ -2,43 +2,45 @@ version: "3.7"
 
 services:
   naming:
-    image: "birdi7/naming"
+    image: "birdi7/ds_dfs_naming"
     build:
       context: .
       dockerfile: naming.dockerfile
     ports:
-      - 80:80
+#      - 80:80
+      - 8000:80
     depends_on:
       - db
     volumes:
       - ./logs:/tmp/
 
-  storage1:
-    image: "birdi7/storage"
+  storage:
+    image: "birdi7/ds_dfs_storage"
     build:
       context: .
       dockerfile: storage.dockerfile
-    ports:
-      - 8000:8000
     volumes:
       - ./logs:/tmp/
+      - /tmp/ds_dfs:/app/var/
+
+    deploy:
+      replicas: 10
 
     depends_on:
       - naming
 
-# TEST
-  # storage2:
-  #   image: "birdi7/storage"
-  #   build:
-  #     context: .
-  #     dockerfile: storage.dockerfile
-  #   ports:
-  #     - 8001:8000
-  #   volumes:
-  #     - ./logs:/tmp/
+  client:
+    image: "birdi7/ds_dfs_client"
+    build:
+      context: .
+      dockerfile: client.dockerfile
 
-  #   depends_on:
-  #     - naming
+    command: bash
+    volumes:
+      - .:/client
+
+    depends_on:
+      - storage
 
   db:
     image: postgres
