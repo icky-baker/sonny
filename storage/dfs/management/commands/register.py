@@ -1,9 +1,8 @@
 import logging
 
+from dfs.settings import HOST_IP, HOST_NAMING, HOST_PORT, WORK_DIR
+from dfs.utils import create_workdir, registry
 from django.core.management.base import BaseCommand
-
-from storage.dfs.settings import HOST_IP, HOST_NAMING, HOST_PORT, WORK_DIR
-from storage.dfs.utils import create_workdir, registry
 
 logger = logging.getLogger("common")
 

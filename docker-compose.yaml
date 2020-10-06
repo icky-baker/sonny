@@ -23,8 +23,8 @@ services:
       - ./logs:/tmp/
 #      - /tmp/ds_dfs:/app/var/
 
-#    deploy:
-#      replicas: 3
+    deploy:
+      replicas: 3
 
     depends_on:
       - naming
