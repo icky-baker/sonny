@@ -36,9 +36,26 @@ def register_new_storage_server(request: WSGIRequest):
         server = StorageServer.objects.create(host=host, port=port, available_space=space)
     else:
         server = StorageServer.objects.get(host=host, port=port)
-        server.update(status=server.StorageServerStatuses.RUNNING, available_space=space)
+        server.update(status=server.StorageServerStatuses.DOWN, available_space=space)
 
     return JsonResponse({"id": server.id, "files": file_list_to_dict_list(StoredFile.objects.all())}, status=200)
+
+
+@require_auth
+def approve_storage_server(request: WSGIRequest):
+    param = get_query_params(request, ["space", "host", "port"], types=[int, str, str])
+
+    if isinstance(param, HttpResponse):
+        return param
+
+    space, host, port = param
+    if not StorageServer.objects.filter(host=host, port=port).exists():
+        return HttpResponse(status=400)
+    else:
+        server = StorageServer.objects.get(host=host, port=port)
+        server.update(status=server.StorageServerStatuses.RUNNING, available_space=space)
+
+    return JsonResponse({"id": server.id}, status=200)
 
 
 class FileView(View):

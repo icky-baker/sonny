@@ -82,7 +82,7 @@ class StoredFile(models.Model):
 
     def to_dict(self):
         info = model_to_dict(self)
-        info["hosts"] = list(map(model_to_dict, self.hosts.all()))
+        info["hosts"] = list(map(model_to_dict, self.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING)))
         return info
 
 
