@@ -371,7 +371,10 @@ def read_directory(path: Optional[str] = None):
         else:
             files.append(name)
 
-    typer.echo("Files:\n{}\n\nDirectories:\n{}\n\n".format("\n".join(files), "\n".join(dirs)))
+    if len(files) == 0 and len(dirs) == 0:
+        typer.echo("This directory is empty")
+    else:
+        typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()
@@ -419,11 +422,33 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
             typer.echo(f"{e}\n", file=sys.stderr)
             return
 
-    delete = typer.confirm("Are you sure you want to delete it?")
-    if not delete:
-        typer.echo("Not deleting")
-        raise typer.Abort()
-    typer.echo("Deleting it!")
+    r = requests.get(
+        url="http://" + IP + ":" + PORT + "/api/directory/",
+        params={"name": directory_name, "cwd": CWD},
+        headers={"Server-Hash": "suchsecret"},
+    )
+
+    respon_json = json.loads(r.text).get("files", [])
+
+    if len(respon_json) != 0:
+        files = []
+        dirs = []
+        for item in respon_json:
+            name = item.get("name")
+            size = item.get("size")
+            if size is None:
+                dirs.append(name)
+            else:
+                files.append(name)
+
+        typer.echo(
+            "This directory is not empty \n\nFiles:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs))
+        )
+        delete = typer.confirm("Are you sure you want to delete it?")
+        if not delete:
+            typer.echo("Not deleting")
+            raise typer.Abort()
+        typer.echo("Deleting it!")
 
     r = requests.post(url="http://" + IP + ":" + PORT + "/api/directory/", headers={"Server-Hash": "suchsecret"})
     storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
