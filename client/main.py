@@ -330,10 +330,10 @@ def open_directory(name: str):
             CWD = CWD[: CWD.rfind("/") + 1]
         else:
             CWD += name + "/"
+        data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
     else:
         typer.echo(f"Error {r.status_code} \nSuch directory doesn't exist")
-    data_dump()
 
 
 @app.command()
