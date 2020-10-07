@@ -33,9 +33,9 @@ with open(f"{BASE_DIR}/data.json", "r") as json_file:
         CWD = "/"
 
 
-def data_dump():
+def data_dump(cwd=CWD):
     with open(f"{BASE_DIR}/data.json", "w") as out:
-        json.dump({"cwd": CWD}, out, indent=4)
+        json.dump({"cwd": cwd}, out, indent=4)
 
 
 @app.command()
@@ -63,7 +63,7 @@ def initialize():
 
     typer.echo(f"\nTotal {total_available_space} available")
 
-    data_dump()
+    data_dump("/")
 
 
 @app.command()
