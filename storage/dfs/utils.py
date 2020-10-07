@@ -18,6 +18,10 @@ def recovery(resp):
         size = item.get("size", None)
         hosts = item.get("hosts", None)
 
+        if name is None or hosts is None:
+            logger.info(f"Incorrect values. Name={name}, Hosts={hosts}.")
+            continue
+
         if size is not None:  # If this is a file
             if os.path.isfile(f"{settings.WORK_DIR}{name}"):
                 if len(hosts) == 0:  # A file only on this server
