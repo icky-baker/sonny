@@ -90,14 +90,17 @@ naming_migrate: |
 naming: |
 	$(python) naming/manage.py runserver
 
+.PHONY: naming_prod_sleep
+naming_prod_sleep: sleep 5;
+
 .PHONY: naming_preprod
 naming_preprod: |
-	sleep 1; $(base_python) manage.py migrate; $(base_python) manage.py runserver 0.0.0.0:80
+	naming_prod_sleep; $(base_python) manage.py migrate; $(base_python) manage.py runserver 0.0.0.0:80
 
 .PHONY: naming_prod
 naming_prod: |
-	sleep 2;
-	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
+	naming_prod_sleep;
+	$(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
 
 .PHONY: build_and_push
 build_and_push: |
@@ -113,7 +116,7 @@ storage: |
 
 .PHONY: storage_prod
 storage_prod: |
-	sleep 3	;
+	sleep 7	;
 	$(base_python) manage.py migrate;
 	$(base_python) manage.py register;
 	gunicorn -w 1 -b 0.0.0.0:8000 dfs.wsgi
