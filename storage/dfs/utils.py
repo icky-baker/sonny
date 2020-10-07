@@ -12,7 +12,7 @@ logger = logging.getLogger("common")
 
 def recovery(resp):
     for item in resp:
-        item = json.loads(item)
+        # item = json.loads(item)
 
         name = item.get("name", None)
         size = item.get("size", None)
@@ -38,7 +38,8 @@ def recovery(resp):
 
         else:  # If this is a directory
             if os.path.isdir(name):
-                if len(hosts) == 0:  # A directory only on this server
+                # NOTE: special case for the root directorry
+                if len(hosts) == 0 and name != "/":  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
             else:
                 os.mkdir(f"{settings.WORK_DIR}{name}")

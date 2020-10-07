@@ -1,1 +1,1 @@
-* * * * * python $(WORKDIR)/manage.py check_storage_servers_health > /tmp/naming.log
+* * * * * bash -c 'python $WORKDIR/manage.py check_storage_servers_health' &> /tmp/cron.log

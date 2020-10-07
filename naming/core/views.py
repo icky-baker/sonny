@@ -34,6 +34,10 @@ def register_new_storage_server(request: WSGIRequest):
     space, host, port = param
     if not StorageServer.objects.filter(host=host, port=port).exists():
         server = StorageServer.objects.create(host=host, port=port, available_space=space)
+        root_dir = StoredFile.objects.get(name="/")
+        root_dir.hosts.add(server)
+        root_dir.save()
+
     else:
 
         server = StorageServer.objects.get(host=host, port=port)
@@ -170,10 +174,6 @@ def file_delete(request: WSGIRequest):
 
 
 def retrieve_directory_content(request: WSGIRequest):
-    # TODO:
-    # пример: /dd, /dd2, /dd3, /dd/canvas.png
-    # на запрос /dd вернет все, а должна не все
-    # FIXME
     param = get_query_params(request, ["name", "cwd"])
     if isinstance(param, HttpResponse):
         return param

@@ -117,3 +117,7 @@ storage_prod: |
 	$(base_python) manage.py migrate;
 	$(base_python) manage.py register;
 	gunicorn -w 1 -b 0.0.0.0:8000 dfs.wsgi
+
+.PHONY: up
+up: |
+	docker-compose up --build

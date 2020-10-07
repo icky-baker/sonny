@@ -14,10 +14,11 @@ RUN chmod 0644 /etc/cron.d/naming-crontab &&\
     crontab /etc/cron.d/naming-crontab &&\
     touch /var/log/cron.log
 
-COPY Makefile /app/
-COPY naming/ /app/
+COPY Makefile naming/ /app/
 RUN mv /app/naming/env_settings.py.docker /app/naming/env_settings.py
 
+RUN printenv > /etc/environment
+RUN cron
 # CMD ["gunicorn", "-b", "0.0.0.0:8000", "naming.wsgi"]
-CMD ["make", "naming_prod"]
-# CMD ["make", "naming_preprod"]
+# CMD ["make", "naming_prod"]
+CMD ["make", "naming_preprod"]
