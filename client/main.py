@@ -26,11 +26,12 @@ BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 SCRIPT_DIR = BASE_DIR.parent
 
 # CWD = "/"  # should start and end with '/'
-with open(f"{BASE_DIR}/data.json", "r") as json_file:
-    try:
+
+try:
+    with open(f"{BASE_DIR}/data.json", "r") as json_file:
         CWD = json.load(json_file)["cwd"]
-    except ValueError:
-        CWD = "/"
+except FileNotFoundError:
+    CWD = "/"
 
 
 def data_dump(cwd=CWD):
