@@ -329,10 +329,13 @@ def open_directory(name: str):
     )
 
     if r.status_code == 200:
+        real_cwd = pathlib.Path(CWD)
         if name == "..":
-            CWD = CWD[: CWD.rfind("/") + 1]
+            real_cwd = real_cwd.parent
         else:
-            CWD += name + "/"
+            real_cwd = real_cwd / name
+
+        CWD = str(real_cwd) + ""
 
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
