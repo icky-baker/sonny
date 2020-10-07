@@ -313,10 +313,11 @@ def file_move(filename: str, destination_path: str):
 @app.command()
 def open_directory(name: str):
     # Should allow to change directory
-    try:
-        validate_filepath(name)
-    except ValidationError as e:
-        typer.echo(f"{e}\n", file=sys.stderr)
+    if (name!=".."):
+        try:
+            validate_filepath(name)
+        except ValidationError as e:
+            typer.echo(f"{e}\n", file=sys.stderr)
 
     global CWD
 
