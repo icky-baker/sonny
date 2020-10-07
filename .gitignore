@@ -136,3 +136,5 @@ dmypy.json
 .DS_Store
 env_settings.py
 logs/
+
+tmp.py

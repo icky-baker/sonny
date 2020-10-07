@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 from django.core.validators import validate_ipv4_address
@@ -78,7 +79,13 @@ class StoredFile(models.Model):
         if not self.is_directory():
             raise ValueError("Not a directory")
 
-        return StoredFile.objects.filter(name__startswith=self.name)
+        result = []
+        for f in StoredFile.objects.filter(name__startswith=self.name):
+            path = Path(f.name)
+            if path.parent == self.name:
+                result.append(f)
+
+        return result
 
     def to_dict(self):
         info = model_to_dict(self)

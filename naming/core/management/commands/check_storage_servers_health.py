@@ -12,12 +12,16 @@ class Command(BaseCommand):
     help = "Checks health of storage servers"
 
     def handle(self, *args, **kwargs):
+        print("BLEAT I HATE THIS SHIT")
+
+        logger.info("Starting health check....")
         for server in StorageServer.objects.all():
+            logger.info("Check %s", server)
             files_to_replicate = StoredFile.objects.filter(size__lt=server.available_space).exclude(hosts=server)
 
             try:
                 response = requests.post(
-                    f"{server.get_url()}api",
+                    f"{server.get_url()}api/",
                     timeout=1,
                     data={"files_to_replicate": [model_to_dict(m) for m in files_to_replicate]},
                 )
@@ -29,5 +33,5 @@ class Command(BaseCommand):
             else:
                 new_status = StorageServer.StorageServerStatuses.DOWN
 
-            logger.info(f"Server {server.id} is down")
+            logger.info(f"Server {server.id} new status is {new_status}")
             server.update(status=new_status)
