@@ -51,8 +51,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
 
   storage_1:
     image: "birdi7/ds_dfs_storage"
@@ -68,10 +68,13 @@ services:
     depends_on:
       - naming
 
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-1.schedule: "@every 60s"
-      ofelia.job-exec.ss-sync-1.command: "make ss_sync"
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.ss-sync-1.schedule: "@every 60s"
+#      ofelia.job-exec.ss-sync-1.command: "make ss_sync"
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   storage_2:
     image: "birdi7/ds_dfs_storage"
@@ -86,11 +89,11 @@ services:
 
     depends_on:
       - naming
-
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-2.schedule: "@every 60s"
-      ofelia.job-exec.ss-sync-2.command: "make ss_sync"
+#
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.ss-sync-2.schedule: "@every 60s"
+#      ofelia.job-exec.ss-sync-2.command: "make ss_sync"
 
   storage_3:
     image: "birdi7/ds_dfs_storage"
@@ -106,10 +109,10 @@ services:
     depends_on:
       - naming
 
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-3.schedule: "@every 60s"
-      ofelia.job-exec.ss-sync-3.command: "make ss_sync"
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.ss-sync-3.schedule: "@every 60s"
+#      ofelia.job-exec.ss-sync-3.command: "make ss_sync"
 
 volumes:
   postgres-data:

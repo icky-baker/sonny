@@ -24,7 +24,7 @@ class Command(BaseCommand):
                     timeout=1,
                     data={"files_to_replicate": [model_to_dict(m) for m in files_to_replicate]},
                 )
-            except (requests.Timeout, requests.ConnectionError):
+            except Exception:
                 response = None
 
             if response and response.status_code == 200:

@@ -34,7 +34,10 @@ except json.decoder.JSONDecodeError:
     CWD = "/"
 
 
-def data_dump(cwd=CWD):
+def data_dump(cwd: Optional[str] = None):
+    if not cwd:
+        cwd = CWD
+
     with open(f"{BASE_DIR}/data.json", "w") as out:
         json.dump({"cwd": cwd}, out, indent=4)
 
@@ -318,10 +321,14 @@ def open_directory(name: str):
         typer.echo(f"{e}\n", file=sys.stderr)
 
     global CWD
+    real_cwd = pathlib.Path(CWD)
+    if name == "..":
+        real_cwd = real_cwd.parent
+        name = None
 
     r = requests.get(
         url="http://" + IP + ":" + PORT + "/api/directory/",
-        params={"name": name, "cwd": CWD},
+        params={"name": name, "cwd": str(real_cwd)},
         headers={"Server-Hash": "suchsecret"},
     )
 
@@ -367,7 +374,7 @@ def read_directory(path: Optional[str] = None):
         else:
             files.append(name)
 
-    typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
+    typer.echo("Files:\n{}\n\nDirectories:\n{}\n\n".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()
