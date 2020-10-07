@@ -34,8 +34,10 @@ except json.decoder.JSONDecodeError:
     CWD = "/"
 
 
-def data_dump(cwd=CWD):
-    
+def data_dump(cwd: Optional[str] = None):
+    if not cwd:
+        cwd = CWD
+
     with open(f"{BASE_DIR}/data.json", "w") as out:
         json.dump({"cwd": cwd}, out, indent=4)
 
@@ -328,10 +330,14 @@ def open_directory(name: str):
     )
 
     if r.status_code == 200:
+        real_cwd = pathlib.Path(CWD)
         if name == "..":
-            CWD = CWD[: CWD.rfind("/") + 1]
+            real_cwd = real_cwd.parent
         else:
-            CWD += name + "/"
+            real_cwd = real_cwd / name
+
+        CWD = str(real_cwd) + ""
+
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
     else:
@@ -369,7 +375,7 @@ def read_directory(path: Optional[str] = None):
         else:
             files.append(name)
 
-    if (len(files)==0 and len(dirs)==0):
+    if len(files) == 0 and len(dirs) == 0:
         typer.echo("This directory is empty")
     else:
         typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
@@ -425,10 +431,10 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
         params={"name": directory_name, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
-    
+
     respon_json = json.loads(r.text).get("files", [])
 
-    if(len(respon_json)!=0):
+    if len(respon_json) != 0:
         files = []
         dirs = []
         for item in respon_json:
@@ -439,7 +445,9 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
             else:
                 files.append(name)
 
-        typer.echo("This directory is not empty \n\nFiles:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
+        typer.echo(
+            "This directory is not empty \n\nFiles:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs))
+        )
         delete = typer.confirm("Are you sure you want to delete it?")
         if not delete:
             typer.echo("Not deleting")

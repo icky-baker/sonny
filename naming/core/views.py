@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from random import choice
 
 from core.models import StorageServer, StoredFile
@@ -43,13 +44,13 @@ def register_new_storage_server(request: WSGIRequest):
         root_dir = StoredFile.objects.get(name="/")
         root_dir.hosts.add(server)
         root_dir.save()
+        logger.info("New storage server: %s", server)
 
     else:
 
         server = StorageServer.objects.get(host=host, port=port)
         server.update(status=server.StorageServerStatuses.DOWN, available_space=space)
 
-    logger.info("New storage server: %s", server)
     return JsonResponse({"id": server.id, "files": file_list_to_dict_list(StoredFile.objects.all())}, status=200)
 
 
@@ -184,8 +185,13 @@ def retrieve_directory_content(request: WSGIRequest):
     if isinstance(param, HttpResponse):
         return param
     dir_name, cwd = param
-    full_name = get_full_name(cwd, dir_name)
+    logger.info(f"dir name is {dir_name}")
+    if dir_name == "..":
+        full_name = str(Path(cwd).parent)
+    else:
+        full_name = get_full_name(cwd, dir_name)
 
+    logger.info(f"full name is {full_name}")
     if not StoredFile.objects.filter(name=full_name).exists():
         return HttpResponse("Directory doesn't exist", status=400)
 

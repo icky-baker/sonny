@@ -124,7 +124,7 @@ up: |
 
 .PHONY: check
 check: |
-	$(base_python) manage.py check_storage_servers_health &>> /tmp/storage-error.log
+	$(base_python) manage.py check_storage_servers_health &>> /tmp/healthcheck.log
 
 .PHONY: ss_sync
 ss_sync: |
