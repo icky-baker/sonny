@@ -21,6 +21,7 @@ logger = logging.getLogger("common")
 
 def init(request: WSGIRequest):
     StoredFile.objects.exclude(name="/").delete()
+    StorageServer.objects.filter(status=StorageServer.StorageServerStatuses.DOWN).delete()
     return HttpResponse(status=200)
 
 

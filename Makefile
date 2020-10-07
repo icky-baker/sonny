@@ -90,16 +90,13 @@ naming_migrate: |
 naming: |
 	$(python) naming/manage.py runserver
 
-.PHONY: naming_prod_sleep
-naming_prod_sleep: sleep 5;
-
 .PHONY: naming_preprod
 naming_preprod: |
-	naming_prod_sleep; $(base_python) manage.py migrate; $(base_python) manage.py runserver 0.0.0.0:80
+	 sleep 5; $(base_python) manage.py migrate; $(base_python) manage.py runserver 0.0.0.0:80
 
 .PHONY: naming_prod
 naming_prod: |
-	naming_prod_sleep;
+	 sleep 5;
 	$(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
 
 .PHONY: build_and_push
@@ -127,7 +124,7 @@ up: |
 
 .PHONY: check
 check: |
-	$(base_python) manage.py check_storage_servers_health
+	$(base_python) manage.py check_storage_servers_health &>> /tmp/storage-error.log
 
 .PHONY: ss_sync
 ss_sync: |
