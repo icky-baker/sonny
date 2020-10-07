@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from random import choice
 
 from core.models import StorageServer, StoredFile
@@ -185,10 +186,10 @@ def retrieve_directory_content(request: WSGIRequest):
         return param
     dir_name, cwd = param
     logger.info(f"dir name is {dir_name}")
-    if dir_name:
-        full_name = get_full_name(cwd, dir_name)
+    if dir_name == "..":
+        full_name = str(Path(cwd).parent)
     else:
-        full_name = cwd
+        full_name = get_full_name(cwd, dir_name)
 
     logger.info(f"full name is {full_name}")
     if not StoredFile.objects.filter(name=full_name).exists():

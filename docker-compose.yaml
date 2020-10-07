@@ -16,10 +16,10 @@ services:
     volumes:
       - ./logs:/tmp/
 
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.check-health.schedule: "@every 30s"
-      ofelia.job-exec.check-health.command: "make check"
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.check-health.schedule: "@every 30s"
+#      ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
     image: mcuadros/ofelia:latest

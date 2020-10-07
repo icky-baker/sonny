@@ -321,14 +321,10 @@ def open_directory(name: str):
         typer.echo(f"{e}\n", file=sys.stderr)
 
     global CWD
-    real_cwd = pathlib.Path(CWD)
-    if name == "..":
-        real_cwd = real_cwd.parent
-        name = None
 
     r = requests.get(
         url="http://" + IP + ":" + PORT + "/api/directory/",
-        params={"name": name, "cwd": str(real_cwd)},
+        params={"name": name, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
 
@@ -337,6 +333,7 @@ def open_directory(name: str):
             CWD = CWD[: CWD.rfind("/") + 1]
         else:
             CWD += name + "/"
+
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
     else:
