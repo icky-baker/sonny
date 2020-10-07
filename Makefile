@@ -96,7 +96,7 @@ naming_preprod: |
 
 .PHONY: naming_prod
 naming_prod: |
-	sleep 1;
+	sleep 2;
 	cron; $(base_python) manage.py migrate; gunicorn -b 0.0.0.0:80 naming.wsgi
 
 .PHONY: build_and_push
@@ -113,11 +113,19 @@ storage: |
 
 .PHONY: storage_prod
 storage_prod: |
-	sleep 2	;
+	sleep 3	;
 	$(base_python) manage.py migrate;
 	$(base_python) manage.py register;
 	gunicorn -w 1 -b 0.0.0.0:8000 dfs.wsgi
 
 .PHONY: up
 up: |
-	docker-compose up --build
+	docker-compose down; docker-compose up --build
+
+.PHONY: check
+check: |
+	$(base_python) manage.py check_storage_servers_health
+
+.PHONY: ss_sync
+ss_sync: |
+	$(base_python) manage.py register;

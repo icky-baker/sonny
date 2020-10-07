@@ -6,13 +6,28 @@ services:
     build:
       context: .
       dockerfile: naming.dockerfile
+
+    command: make naming_prod
+
     ports:
-#      - 80:80
-      - 8000:80
+      - 80:80
     depends_on:
       - db
     volumes:
       - ./logs:/tmp/
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.check-health.schedule: "@every 5s"
+      ofelia.job-exec.check-health.command: "make check"
+
+  ofelia:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - naming
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   storage:
     image: "birdi7/ds_dfs_storage"
@@ -28,6 +43,12 @@ services:
 
     depends_on:
       - naming
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.ss-sync.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync.command: "make ss_sync"
+
 
   client:
     image: "birdi7/ds_dfs_client"

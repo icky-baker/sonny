@@ -21,4 +21,4 @@ RUN printenv > /etc/environment
 RUN cron
 # CMD ["gunicorn", "-b", "0.0.0.0:8000", "naming.wsgi"]
 # CMD ["make", "naming_prod"]
-CMD ["make", "naming_preprod"]
+# CMD ["make", "naming_preprod"]
