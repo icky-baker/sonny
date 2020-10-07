@@ -18,7 +18,7 @@ services:
 
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.check-health.schedule: "@every 5s"
+      ofelia.job-exec.check-health.schedule: "@every 30s"
       ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
@@ -70,7 +70,7 @@ services:
 
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-1.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-1.schedule: "@every 60s"
       ofelia.job-exec.ss-sync-1.command: "make ss_sync"
 
   storage_2:
@@ -89,7 +89,7 @@ services:
 
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-2.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-2.schedule: "@every 60s"
       ofelia.job-exec.ss-sync-2.command: "make ss_sync"
 
   storage_3:
@@ -108,7 +108,7 @@ services:
 
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync-3.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-3.schedule: "@every 60s"
       ofelia.job-exec.ss-sync-3.command: "make ss_sync"
 
 volumes:
