@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import random
@@ -16,9 +17,21 @@ PORT = "80"
 # get zapros file_create [command] [filename] [directory name]
 # ip/api/dfs
 
-CWD = "/"  # should start and end with '/'
+
 BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 SCRIPT_DIR = BASE_DIR.parent
+
+# CWD = "/"  # should start and end with '/'
+with open(f"{BASE_DIR}/data.json", "w") as json_file:
+    try:
+        CWD = json.load(json_file).get("cwd", "/")
+    except ValueError:
+        CWD = "/"
+
+
+def data_dump():
+    with open(f"{BASE_DIR}/data.json", "w") as out:
+        json.dump({"cwd": CWD}, out, indent=4)
 
 
 @app.command()
@@ -38,6 +51,7 @@ def initialize():
         typer.echo(f"Host {ip} : {space} bytes available")
 
     typer.echo(f"\nTotal {total_available_space} available")
+    data_dump()
 
 
 @app.command()
@@ -58,6 +72,7 @@ def file_create(filename: str):
         params={"command": "file_create", "name": filename, "cwd": CWD},
     )
     typer.echo(r.content)
+    data_dump()
 
 
 @app.command()
@@ -81,6 +96,7 @@ def file_read(filename: str):
     else:
         typer.echo("Che-to ne tak. File ne zagruzilsya")
     pass
+    data_dump()
 
 
 @app.command()
@@ -114,7 +130,7 @@ def file_write(path_to_the_file: str):
         typer.echo(f"{filename} is uploaded successfully!")
     else:
         typer.echo(r.content)
-
+    data_dump()
     # post
     # в теле - key="file", value - файл
 
@@ -139,6 +155,7 @@ def file_delete(filename: str):
         )
     else:
         typer.echo("Such file doesn't exist")
+    data_dump()
 
 
 @app.command()
@@ -157,6 +174,7 @@ def file_info(filename: str):
     typer.echo(r.content)
     # TODO: beautiful print of file info
     # {"hosts": [{"host": "192.168.224.4", "port": 8000}], "file_info": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 22:32:57 2020", "change time": "Tue Oct  6 22:32:57 2020", "modified time": "Tue Oct  6 22:32:57 2020"}}
+    data_dump()
 
 
 @app.command()
@@ -175,6 +193,7 @@ def file_copy(filename: str):
         params={"command": "file_copy", "name": filename, "cwd": CWD},
     )
     typer.echo(r.text)
+    data_dump()
 
 
 @app.command()
@@ -191,6 +210,7 @@ def file_move(filename: str, destination_path: str):
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_move", "name": filename, "cwd": CWD, "path": destination_path},
     )
+    data_dump()
 
 
 @app.command()
@@ -213,6 +233,7 @@ def open_directory(name: str):
         typer.echo(f"Current working directory is {CWD}")
     else:
         typer.echo("Such directory doesn't exist")
+    data_dump()
 
 
 @app.command()
@@ -223,7 +244,7 @@ def read_directory(path: Optional[str] = typer.Argument(CWD)):
         params={"name": path, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
-
+    data_dump()
     r_json = r.json()  # noqa
     # b'{"files": [{"id": 1, "name": "/dd", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 2, "name": "/dd2", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 3, "name": "/dd3", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 4, "name": "/dd/canvas.png", "size": 12345922, "meta": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 23:18:25 2020", "change time": "Tue Oct  6 23:18:25 2020", "modified time": "Tue Oct  6 23:18:25 2020"}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}]}'
 
@@ -250,6 +271,7 @@ def make_directory(directory_name: str, path: Optional[str] = None):
     )
 
     typer.echo(f"Created directory {path}{directory_name}/")
+    data_dump()
 
 
 @app.command()
@@ -273,6 +295,7 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
         typer.echo(r.text)
     elif r.status_code == 400:
         typer.echo("Directory with such name doesn't exist")
+    data_dump()
 
 
 if __name__ == "__main__":
