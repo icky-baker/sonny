@@ -355,8 +355,7 @@ def read_directory(path: Optional[str] = None):
     data_dump()
     # r_json = r.json()
     respon_json = json.loads(r.text).get("files", [])
-    print(r.text)
-    print(respon_json)
+
     files = []
     dirs = []
     for item in respon_json:
@@ -367,7 +366,7 @@ def read_directory(path: Optional[str] = None):
         else:
             files.append(name)
 
-    typer.echo("files:\n{}\directories:\n{}".format("\n".join(files), "\n".join(dirs)))
+    typer.echo("files:\n{}\n\ndirectories:\n{}".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()
