@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: naming.dockerfile
 
-    command: make naming_prod
+    command: make naming_preprod
 
     ports:
       - 80:80
@@ -29,27 +29,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  storage:
-    image: "birdi7/ds_dfs_storage"
-    build:
-      context: .
-      dockerfile: storage.dockerfile
-    volumes:
-      - ./logs:/tmp/
-      - ./dfs/:/app/var/
-
-    deploy:
-      replicas: 3
-
-    depends_on:
-      - naming
-
-#    labels:
-#      ofelia.enabled: "true"
-#      ofelia.job-exec.ss-sync.schedule: "@every 5s"
-#      ofelia.job-exec.ss-sync.command: "make ss_sync"
-
-
   client:
     image: "birdi7/ds_dfs_client"
     build:
@@ -61,7 +40,9 @@ services:
       - ./client_data:/app/data
 
     depends_on:
-      - storage
+      - storage_1
+      - storage_2
+      - storage_3
 
   db:
     image: postgres
@@ -69,3 +50,63 @@ services:
       - POSTGRES_DB=naming
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  storage_1:
+    image: "birdi7/ds_dfs_storage"
+    build:
+      context: .
+      dockerfile: storage.dockerfile
+    volumes:
+      - ./logs:/tmp/
+      - ./dfs/:/app/var/
+    environment:
+      - HOSTNAME=storage_1
+
+    depends_on:
+      - naming
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.ss-sync-1.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-1.command: "make ss_sync"
+
+  storage_2:
+    image: "birdi7/ds_dfs_storage"
+    build:
+      context: .
+      dockerfile: storage.dockerfile
+    volumes:
+      - ./logs:/tmp/
+      - ./dfs/:/app/var/
+    environment:
+      - HOSTNAME=storage_2
+
+    depends_on:
+      - naming
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.ss-sync-2.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-2.command: "make ss_sync"
+
+  storage_3:
+    image: "birdi7/ds_dfs_storage"
+    build:
+      context: .
+      dockerfile: storage.dockerfile
+    volumes:
+      - ./logs:/tmp/
+      - ./dfs/:/app/var/
+    environment:
+      - HOSTNAME=storage_3
+
+    depends_on:
+      - naming
+
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.ss-sync-3.schedule: "@every 5s"
+      ofelia.job-exec.ss-sync-3.command: "make ss_sync"

@@ -366,7 +366,7 @@ def read_directory(path: Optional[str] = None):
         else:
             files.append(name)
 
-    typer.echo("files:\n{}\n\ndirectories:\n{}".format("\n".join(files), "\n".join(dirs)))
+    typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()

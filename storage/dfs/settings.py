@@ -19,7 +19,7 @@ from .utils import create_workdir, registry
 
 # Base conf
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WORK_DIR = BASE_DIR + "/var/" + socket.gethostname() + "/"
+WORK_DIR = BASE_DIR + "/var/" + os.getenv("HOSTNAME") + "/"
 
 HOST_NAMING = "http://naming:80"
 HOST_IP = socket.gethostbyname(socket.gethostname())
