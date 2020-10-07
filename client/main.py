@@ -30,7 +30,7 @@ SCRIPT_DIR = BASE_DIR.parent
 try:
     with open(f"{BASE_DIR}/data.json", "r") as json_file:
         CWD = json.load(json_file)["cwd"]
-except FileNotFoundError:
+except json.decoder.JSONDecodeError:
     CWD = "/"
 
 
