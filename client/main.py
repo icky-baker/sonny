@@ -26,9 +26,9 @@ BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 SCRIPT_DIR = BASE_DIR.parent
 
 # CWD = "/"  # should start and end with '/'
-with open(f"{BASE_DIR}/data.json", "w") as json_file:
+with open(f"{BASE_DIR}/data.json", "r") as json_file:
     try:
-        CWD = json.load(json_file).get("cwd", "/")
+        CWD = json.load(json_file)["cwd"]
     except ValueError:
         CWD = "/"
 
@@ -95,7 +95,7 @@ def file_create(filename: str):
     if req.status_code == 201:
         typer.echo(f"File '{filename}' is successfilly created")
     else:
-        typer.echo(f"Error {req.status_code} \n File with this name does not exist")
+        typer.echo(f"Error {req.status_code} \n File with this name already exists")
 
     data_dump()
 
