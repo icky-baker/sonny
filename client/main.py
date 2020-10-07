@@ -245,12 +245,21 @@ def read_directory(path: Optional[str] = typer.Argument(CWD)):
         headers={"Server-Hash": "suchsecret"},
     )
     data_dump()
-    r_json = r.json()  # noqa
-    # b'{"files": [{"id": 1, "name": "/dd", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 2, "name": "/dd2", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 3, "name": "/dd3", "size": null, "meta": {}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}, {"id": 4, "name": "/dd/canvas.png", "size": 12345922, "meta": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 23:18:25 2020", "change time": "Tue Oct  6 23:18:25 2020", "modified time": "Tue Oct  6 23:18:25 2020"}, "hosts": [{"id": 1, "host": "172.26.0.4", "port": 8000, "status": "RUNNING", "available_space": 52596977664}, {"id": 2, "host": "172.26.0.6", "port": 8000, "status": "RUNNING", "available_space": 52596957184}, {"id": 3, "host": "172.26.0.5", "port": 8000, "status": "RUNNING", "available_space": 52596953088}]}]}'
+    # r_json = r.json()
+    respon_json = json.loads(r.text).get("files", [])
+    print(r.text)
+    print(respon_json)
+    files = []
+    dirs = []
+    for item in respon_json:
+        name = item.get("name")
+        size = item.get("size")
+        if size is None:
+            dirs.append(name)
+        else:
+            files.append(name)
 
-    # TODO: нужно выводить инфу из запроса к неймингу
-    # пример есть в комментарии наверху
-    # если size None - то это директория, иначе - файл
+    typer.echo("files:\n{}\directories:\n{}".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()
