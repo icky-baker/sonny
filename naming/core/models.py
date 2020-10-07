@@ -80,9 +80,9 @@ class StoredFile(models.Model):
             raise ValueError("Not a directory")
 
         result = []
-        for f in StoredFile.objects.filter(name__startswith=self.name):
+        for f in StoredFile.objects.filter(name__startswith=self.name).exclude(id=self.id):
             path = Path(f.name)
-            if path.parent == self.name:
+            if str(path.parent) == self.name:
                 result.append(f)
 
         return result
