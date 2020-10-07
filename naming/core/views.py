@@ -19,6 +19,11 @@ from django.views import View
 logger = logging.getLogger("common")
 
 
+def init(request: WSGIRequest):
+    StoredFile.objects.exclude(name="/").delete()
+    return HttpResponse(status=200)
+
+
 @require_auth
 def retrieve_storage_servers(request: WSGIRequest):
     return JsonResponse({"hosts": servers_to_dict_list(StorageServer.objects.get_active())})

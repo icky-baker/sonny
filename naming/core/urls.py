@@ -26,4 +26,5 @@ urlpatterns = [
     path("api/file/approve/", views.file_approve, name="file-approve"),
     path("api/file/delete/", views.file_delete, name="file-delete"),
     path("api/directory/", views.retrieve_directory_content, name="retrieve-directory-content"),
+    path("api/init/", views.init, name="init"),
 ]

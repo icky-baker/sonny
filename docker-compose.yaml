@@ -16,10 +16,10 @@ services:
     volumes:
       - ./logs:/tmp/
 
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.check-health.schedule: "@every 5s"
-      ofelia.job-exec.check-health.command: "make check"
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.check-health.schedule: "@every 5s"
+#      ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
     image: mcuadros/ofelia:latest
@@ -36,7 +36,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-#      - /tmp/ds_dfs:/app/var/
+      - ./dfs/:/app/var/
 
     deploy:
       replicas: 3
@@ -44,10 +44,10 @@ services:
     depends_on:
       - naming
 
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.ss-sync.schedule: "@every 5s"
-      ofelia.job-exec.ss-sync.command: "make ss_sync"
+#    labels:
+#      ofelia.enabled: "true"
+#      ofelia.job-exec.ss-sync.schedule: "@every 5s"
+#      ofelia.job-exec.ss-sync.command: "make ss_sync"
 
 
   client:

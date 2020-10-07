@@ -13,8 +13,10 @@ from beautifultable import BeautifulTable
 from pathvalidate import ValidationError, validate_filename, validate_filepath
 
 app = typer.Typer()
-IP = "3.134.152.50"
-# IP = "naming"
+if os.getenv("IS_IN_DOCKER"):
+    IP = "naming"
+else:
+    IP = "3.134.152.50"
 PORT = "80"
 # get zapros file_create [command] [filename] [directory name]
 # ip/api/dfs
@@ -41,6 +43,8 @@ def initialize():
     # Initialize the client storage on a new system, should remove any existing file in the dfs root directory and return available size.
 
     typer.echo("Initializing")
+    r = requests.get(url="http://" + IP + ":" + PORT + "/api/init/", headers={"Server-Hash": "suchsecret"})
+
     r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
     if not (r.status_code == 200 and len(r.json()["hosts"]) > 0):
         typer.echo(f"\nTotal {0} bytes available")
@@ -378,7 +382,7 @@ def make_directory(directory_name: str, path: Optional[str] = None):
             typer.echo(f"{e}\n", file=sys.stderr)
             return
 
-    r = requests.post(url="http://" + IP + ":" + PORT + "/api/directory/", headers={"Server-Hash": "suchsecret"})
+    r = requests.post(url="http://" + IP + ":" + PORT + "/api/hosts/", headers={"Server-Hash": "suchsecret"})
     storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
     storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(
         r.json()["hosts"][storage_server]["port"]
