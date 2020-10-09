@@ -116,7 +116,7 @@ storage_prod: |
 	sleep 7	;
 	$(base_python) manage.py migrate;
 	$(base_python) manage.py register;
-	gunicorn -w 4 -b 0.0.0.0:8000 dfs.wsgi
+	gunicorn -w 2 -b 0.0.0.0:8000 dfs.wsgi
 
 .PHONY: up
 up: |
