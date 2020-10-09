@@ -10,3 +10,5 @@ COPY Makefile /app/
 COPY client/ /app/
 
 ENV IS_IN_DOCKER=true
+
+CMD ["make", "client_entrypoint"]

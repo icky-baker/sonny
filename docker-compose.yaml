@@ -35,12 +35,11 @@ services:
       context: .
       dockerfile: client.dockerfile
 
-    command: bash
     volumes:
       - ./client_data:/app/data
 
     deploy:
-      replicas: 0
+      replicas: 1
 
 #    depends_on:
 #      - storage_1
