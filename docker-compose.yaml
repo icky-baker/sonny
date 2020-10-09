@@ -35,9 +35,6 @@ services:
       context: .
       dockerfile: client.dockerfile
 
-    volumes:
-      - ./client_data:/app/data
-
     deploy:
       replicas: 1
 
