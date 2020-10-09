@@ -1,6 +1,6 @@
 # Distributed Systems - DFS project
 
-![master](https://github.com/icky-baker/sonny/workflows/Linting/badge.svg?
+![master](https://github.com/icky-baker/sonny/workflows/Linting/badge.svg?branch=master)
 
 
 ## Team
