@@ -51,8 +51,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-#    volumes:
-#      - postgres-data:/var/lib/postgresql/data
+    # volumes:
+    #   - postgres-data:/var/lib/postgresql/data
 
   storage_1:
     image: "birdi7/ds_dfs_storage"
