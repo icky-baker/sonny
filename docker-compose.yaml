@@ -91,7 +91,12 @@ services:
 
     depends_on:
       - naming
-#
+
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+
 #    labels:
 #      ofelia.enabled: "true"
 #      ofelia.job-exec.ss-sync-2.schedule: "@every 60s"
@@ -110,6 +115,11 @@ services:
 
     depends_on:
       - naming
+
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
 
 #    labels:
 #      ofelia.enabled: "true"
