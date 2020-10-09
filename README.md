@@ -1,6 +1,5 @@
 # Distributed Systems - DFS project
 
-
    * [Distributed Systems - DFS project](#distributed-systems---dfs-project)
    * [Table of contents](#table-of-contents)
    * [System launch](#system-launch)
