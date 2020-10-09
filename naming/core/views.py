@@ -159,7 +159,7 @@ def file_delete(request: WSGIRequest):
 
     file_name, host, port, cwd = param
     full_name = get_full_name(cwd, file_name)
-    logger.info("param", param)
+
     logger.info("full_name = %s", full_name)
 
     try:
@@ -169,7 +169,7 @@ def file_delete(request: WSGIRequest):
 
     file.hosts.remove(StorageServer.objects.get(host=host, port=port))
 
-    if list(file.hosts.all()):
+    if not list(file.hosts.all()):
         file.delete()
         return JsonResponse({"replicate_to": None}, status=200)
 
