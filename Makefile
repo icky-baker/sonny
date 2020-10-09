@@ -129,3 +129,7 @@ check: |
 .PHONY: ss_sync
 ss_sync: |
 	$(base_python) manage.py register;
+
+.PHONE: client_entrypoint
+client_entrypoint: |
+	./client.sh
