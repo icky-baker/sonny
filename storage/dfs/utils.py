@@ -43,10 +43,10 @@ def recovery(resp):
             # if os.path.isdir(name):
             if os.path.exists(f"{settings.WORK_DIR}{name}"):
                 # NOTE: special case for the root directorry
-                if not hosts and name != "/":  # A directory only on this server
+                if not hosts:  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
             else:
-                os.mkdir(name)
+                os.mkdir(f"{settings.WORK_DIR}{name}")
 
 
 def registry(host_naming, host_ip, host_port):
