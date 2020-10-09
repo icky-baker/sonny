@@ -458,7 +458,7 @@ def delete_directory(directory_name: str):
         params={"name": directory_name, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
-    typer.echo(r.text)
+    # typer.echo(r.text)
 
     respon_json = json.loads(r.text).get("files", [])
 

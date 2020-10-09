@@ -24,26 +24,27 @@ def recovery(resp):
 
         if size is not None:  # If this is a file
             if os.path.isfile(f"{settings.WORK_DIR}{name}"):
-                if len(hosts) == 0:  # A file only on this server
+                if not hosts:  # A file only on this server
                     os.remove(f"{settings.WORK_DIR}{name}")
             else:  # A file doesn't exist on this server
-                host = choice(hosts)  # Get random host
-                r = requests.get(
-                    f"http://{host.get('host')}:{host.get('port')}/api/dfs/",
-                    params={"command": "file_read", "name": name[1::], "cwd": "/"},
-                )
-                if r.status_code == 200:
-                    with open(name, "wb+") as fp:
-                        fp.write(r.content)
+                if hosts:
+                    host = choice(hosts)  # Get random host
+                    r = requests.get(
+                        f"http://{host.get('host')}:{host.get('port')}/api/dfs/",
+                        params={"command": "file_read", "name": name[1::], "cwd": "/"},
+                    )
+                    if r.status_code == 200:
+                        with open(name, "wb+") as fp:
+                            fp.write(r.content)
 
         else:  # If this is a directory
             # if os.path.isdir(name):
-            if os.path.exists(name):
+            if os.path.exists(f"{settings.WORK_DIR}{name}"):
                 # NOTE: special case for the root directorry
                 if len(hosts) == 0 and name != "/":  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
             else:
-                os.mkdir(name)
+                os.mkdir(f"{settings.WORK_DIR}{name}")
 
 
 def registry(host_naming, host_ip, host_port):

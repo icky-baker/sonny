@@ -16,10 +16,10 @@ services:
     volumes:
       - ./logs:/tmp/
 
-#    labels:
-#      ofelia.enabled: "true"
-#      ofelia.job-exec.check-health.schedule: "@every 30s"
-#      ofelia.job-exec.check-health.command: "make check"
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.check-health.schedule: "@every 5s"
+      ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
     image: mcuadros/ofelia:latest
@@ -51,8 +51,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
 
-    # volumes:
-    #   - postgres-data:/var/lib/postgresql/data
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
 
   storage_1:
     image: "birdi7/ds_dfs_storage"
