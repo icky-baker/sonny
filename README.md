@@ -1,5 +1,5 @@
 # sonny
-![master](https://github.com/icky-baker/sonny/workflows/linting/badge.svg)
+![master](https://github.com/icky-baker/sonny/workflows/.github/workflows/linting.yml/badge.svg)
 
 # Get started
 
