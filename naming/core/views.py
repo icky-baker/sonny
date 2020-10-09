@@ -186,10 +186,11 @@ def retrieve_directory_content(request: WSGIRequest):
         return param
     dir_name, cwd = param
     logger.info(f"dir name is {dir_name}")
-    if dir_name == "..":
-        full_name = str(Path(cwd).parent)
-    else:
-        full_name = get_full_name(cwd, dir_name)
+    full_name_by_dir_name = {
+        "..": str(Path(cwd).parent),
+        ".": cwd[:-1],  # NOTE: because there is no slash at the end in DB, but there is a slash in input
+    }
+    full_name = full_name_by_dir_name.get(dir_name, get_full_name(cwd, dir_name))
 
     logger.info(f"full name is {full_name}")
     if not StoredFile.objects.filter(name=full_name).exists():

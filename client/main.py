@@ -334,7 +334,9 @@ def open_directory(name: str):
             "..": real_cwd.parent,
             ".": real_cwd,
         }
-        CWD = str(cwd_by_name.get(name, real_cwd / name)) + "/"
+        CWD = str(cwd_by_name.get(name, real_cwd / name))
+        if CWD[-1] != "/":
+            CWD += "/"
 
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
