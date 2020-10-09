@@ -1,5 +1,5 @@
 # sonny
-![master](https://github.com/actions/hello-world/workflows/Greet%20Everyone/badge.svg?branch=master)
+![master](https://github.com/icky-baker/sonny/workflows/linting/badge.svg)
 
 # Get started
 
