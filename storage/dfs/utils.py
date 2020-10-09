@@ -38,13 +38,15 @@ def recovery(resp):
                             fp.write(r.content)
 
         else:  # If this is a directory
+            if name == "/":
+                continue
             # if os.path.isdir(name):
             if os.path.exists(f"{settings.WORK_DIR}{name}"):
                 # NOTE: special case for the root directorry
                 if len(hosts) == 0 and name != "/":  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
             else:
-                os.mkdir(f"{settings.WORK_DIR}{name}")
+                os.mkdir(name)
 
 
 def registry(host_naming, host_ip, host_port):
