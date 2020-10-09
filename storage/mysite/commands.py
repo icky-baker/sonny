@@ -148,6 +148,13 @@ def file_copy(name, cwd):
         shutil.copyfile(f"{settings.WORK_DIR}{cwd}{name}", f"{settings.WORK_DIR}{cwd}{target}")
         logger.info("The file: copied")
 
+        # r = requests.post(
+        #     url=f"{settings.HOST_NAMING}/api/file/",
+        #     headers={"Server-Hash": "suchsecret"},
+        #     params={"name": target, "size": os.path.getsize(f"{settings.WORK_DIR}{cwd}{target}"), "cwd": cwd},
+        # )
+        # logger.info(f"Response from naming server to create file: {r.status_code}")
+
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
             data={
@@ -170,13 +177,17 @@ def file_copy(name, cwd):
             )
             logger.info(f"Response from storage server-replica: {r.status_code}")
 
-        return JsonResponse({"msg": {"filename": target}}, status=404)
+        return JsonResponse({"msg": {"filename": target}}, status=200)
 
 
 def file_move(name, cwd, path):
     if not os.path.isfile(f"{settings.WORK_DIR}{cwd}{name}"):
         return JsonResponse({"msg": {"error": "file with such name does not exists"}}, status=404)
     else:
+        if path[0] != "/":
+            path = "/" + path
+        if path[-1] != "/":
+            path = path + "/"
         shutil.move(f"{settings.WORK_DIR}{cwd}{name}", f"{settings.WORK_DIR}{path}{name}")
         logger.info("The file: moved")
         r = requests.post(
@@ -186,14 +197,21 @@ def file_move(name, cwd, path):
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        if r.json()["replicate_to"] is not None:
-            host = r.json()["replicate_to"]["host"]
-            port = r.json()["replicate_to"]["port"]
-            r = requests.get(
-                f"http://{host}:{port}/api/dfs/",
-                params={"command": "file_delete", "name": name, "cwd": cwd},
-            )
-            logger.info(f"Response from storage server-replica: {r.status_code}")
+        # if r.json()["replicate_to"] is not None:
+        #     host = r.json()["replicate_to"]["host"]
+        #     port = r.json()["replicate_to"]["port"]
+        #     r = requests.get(
+        #         f"http://{host}:{port}/api/dfs/",
+        #         params={"command": "file_delete", "name": name, "cwd": cwd},
+        #     )
+        #     logger.info(f"Response from storage server-replica: {r.status_code}")
+
+        # r = requests.post(
+        #     url=f"{settings.HOST_NAMING}/api/file/",
+        #     headers={"Server-Hash": "suchsecret"},
+        #     params={"name": name, "size": os.path.getsize(f"{settings.WORK_DIR}{path}{name}"), "cwd": cwd},
+        # )
+        # logger.info(f"Response from naming server to create file: {r.status_code}")
 
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/approve/",
@@ -204,7 +222,7 @@ def file_move(name, cwd, path):
                 "change time": time.ctime(os.path.getctime(f"{settings.WORK_DIR}{path}{name}")),
                 "size": os.path.getsize(f"{settings.WORK_DIR}{path}{name}"),
             },
-            params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
+            params={"name": name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": path},
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
@@ -213,11 +231,11 @@ def file_move(name, cwd, path):
             port = r.json()["replicate_to"]["port"]
             r = requests.get(
                 f"http://{host}:{port}/api/dfs/",
-                params={"command": "file_create", "name": name, "cwd": path},
+                params={"command": "file_move", "name": name, "cwd": cwd, "path": path},
             )
             logger.info(f"Response from storage server-replica: {r.status_code}")
 
-        return HttpResponse(status=200)
+        return HttpResponse("The file is moved", status=200)
 
 
 def dir_read(cwd):
