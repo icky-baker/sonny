@@ -1,5 +1,5 @@
 # sonny
-![master](https://github.com/icky-baker/sonny/workflows/lint/badge.svg?branch=master)
+![master](https://github.com/icky-baker/sonny/workflows/Python%20application/badge.svg?branch=master)
 
 # Get started
 
