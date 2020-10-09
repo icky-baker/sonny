@@ -333,9 +333,8 @@ def open_directory(name: str):
         cwd_by_name = {
             "..": real_cwd.parent,
             ".": real_cwd,
-            name: real_cwd / name,
         }
-        CWD = str(cwd_by_name[name]) + "/"
+        CWD = str(cwd_by_name.get(name, real_cwd / name)) + "/"
 
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
@@ -475,6 +474,11 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
     elif r.status_code == 400:
         typer.echo("Directory with such name doesn't exist")
     data_dump()
+
+
+@app.command()
+def cwd():
+    typer.echo(CWD)
 
 
 if __name__ == "__main__":
