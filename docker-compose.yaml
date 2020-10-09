@@ -92,7 +92,7 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.role==worker"
+          - "node.role==manager"
 
 #    labels:
 #      ofelia.enabled: "true"
