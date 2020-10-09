@@ -39,6 +39,9 @@ services:
     volumes:
       - ./client_data:/app/data
 
+  deploy:
+    - replicas: 0
+
 #    depends_on:
 #      - storage_1
 #      - storage_2
