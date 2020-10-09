@@ -1,4 +1,4 @@
-# Distributed Systems - DFS project
+# Distributed Systems - DFS project ![Linting](https://github.com/icky-baker/sonny/workflows/Python%20application/badge.svg)
 
    * [Distributed Systems - DFS project](#distributed-systems---dfs-project)
    * [Table of contents](#table-of-contents)
