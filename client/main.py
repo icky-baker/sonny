@@ -434,6 +434,10 @@ def make_directory(directory_name: str, path: Optional[str] = None):
 def rmdir(directory_name: str):
     delete_directory(directory_name)
 
+@app.command()
+def mkdir(directory_name: str):
+    make_directory(directory_name)
+
 
 @app.command()
 def delete_directory(directory_name: str):
