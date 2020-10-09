@@ -3,21 +3,31 @@
 ![master](https://github.com/icky-baker/sonny/workflows/Linting/badge.svg?
 
 
-**Team**
+## Team
 Danil Usmanov
 Egor Osokin
 Olya Chernukhina
 
-**Group**
+## Group
 BS-18-SB-01
 
-**Date**
+## Date
 October 2020, semester 5
 
-# Table of contents
+Table of Contents
+=================
 
- [ToC]
-
+   * [Distributed Systems - DFS project](#distributed-systems---dfs-project)
+   * [Table of contents](#table-of-contents)
+   * [System launch](#system-launch)
+   * [Architectural diagram](#architectural-diagram)
+   * [Communication protocols](#communication-protocols)
+      * [Endpoints](#endpoints)
+         * [Naming Server](#naming-server)
+         * [Storage Server](#storage-server)
+      * [Communication Scenarios](#communication-scenarios)
+      * [Background processes](#background-processes)
+   * [Team](#team)
 # System launch
 
 **Prerequisites:**
@@ -274,6 +284,7 @@ Danil Usmanov - storage server, deployment
 Egor Osokin - naming server, deployment
 
 Olya Chernukhina - client, documentation
+
 
 
 
