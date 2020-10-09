@@ -28,32 +28,32 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: [CLIENT] Lint with isort
+    - name: CLIENT, Lint with isort
       run: |
         isort -rc client
-    - name: [CLIENT] Lint with black
+    - name: CLIENT, Lint with black
       run: |
         black --check client
-    - name: [CLIENT] Lint with flake8
+    - name: CLIENT, Lint with flake8
       run: |
         flake8 client
 
-    - name: [NAMING] Lint with isort
+    - name: NAMING, Lint with isort
       run: |
         isort -rc naming
-    - name: [NAMING] Lint with black
+    - name: NAMING, Lint with black
       run: |
         black --check naming
-    - name: [NAMING] Lint with flake8
+    - name: NAMING, Lint with flake8
       run: |
         flake8 naming
 
-    - name: [STORAGE] Lint with isort
+    - name: STORAGE, Lint with isort
       run: |
         isort -rc storage
-    - name: [STORAGE] Lint with black
+    - name: STORAGE, Lint with black
       run: |
         black --check storage
-    - name: [STORAGE] Lint with flake8
+    - name: STORAGE, Lint with flake8
       run: |
         flake8 storage
