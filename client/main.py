@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import os
 import pathlib
@@ -391,6 +392,7 @@ def read_directory():
         msg = "Directory content:\n"
         if files:
             msg += "\tFiles:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", files)))
+            msg += "\n\n"
         if dirs:
             msg += "\tDirectories:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", dirs)))
 
