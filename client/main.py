@@ -25,12 +25,11 @@ PORT = "80"
 BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 SCRIPT_DIR = BASE_DIR.parent
 
-# CWD = "/"  # should start and end with '/'
 
 try:
     with open(f"{BASE_DIR}/data.json", "r") as json_file:
         CWD = json.load(json_file)["cwd"]
-except json.decoder.JSONDecodeError:
+except (json.decoder.JSONDecodeError, FileNotFoundError):
     CWD = "/"
 
 
@@ -122,7 +121,7 @@ def file_read(filename: str):
         typer.echo(f"Error {r.status_code} {r.text}")
         return
 
-    storage_ip, storage_port = str(r.json()[0]["host"]), str(r.json()[0]["port"])
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
     req = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_read", "name": filename, "cwd": CWD},
@@ -133,7 +132,7 @@ def file_read(filename: str):
 
     typer.echo(f"Downloading the file {filename} from the server")
     with open(os.path.join(BASE_DIR, filename), "wb+") as fp:
-        fp.write(r.content)
+        fp.write(req.content)
         fp.close()
     typer.echo(f"File '{filename}' is downloaded")
 
@@ -229,13 +228,14 @@ def file_info(filename: str):
         typer.echo("File with this name doesn't exist")
         return
 
+    info = r.json()["file_info"]
+
     table = BeautifulTable()
-    for key in r.json()["file info"]:
-        table.rows.append(key, r.json()["file_info"][str(key)])
+    print("keys are", info.keys())
+    table.columns.header = list(map(str, info.keys()))
+    table.rows.append(map(str, info.values()))
+    typer.echo(str(table))
 
-    typer.echo(table)
-
-    # {"hosts": [{"host": "192.168.224.4", "port": 8000}], "file_info": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 22:32:57 2020", "change time": "Tue Oct  6 22:32:57 2020", "modified time": "Tue Oct  6 22:32:57 2020"}}
     data_dump()
 
 
@@ -298,7 +298,7 @@ def file_move(filename: str, destination_path: str):
         return
 
     storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
-    typer.echo("File transfer to '{destination_path}' is in process")
+    typer.echo(f"File transfer to '{destination_path}' is in process")
     r = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_move", "name": filename, "cwd": CWD, "path": destination_path},
@@ -330,7 +330,8 @@ def open_directory(name: str):
 
     if r.status_code == 200:
         if name == "..":
-            CWD = CWD[: CWD.rfind("/") + 1]
+            CWD = CWD[:: CWD.rfind("/") + 1]
+            CWD = CWD
         else:
             CWD += name + "/"
 
@@ -359,6 +360,8 @@ def read_directory(path: Optional[str] = None):
     )
     data_dump()
     # r_json = r.json()
+    # print(r.text)
+    # print(r.status_code)
     respon_json = json.loads(r.text).get("files", [])
 
     files = []
@@ -374,7 +377,7 @@ def read_directory(path: Optional[str] = None):
     if len(files) == 0 and len(dirs) == 0:
         typer.echo("This directory is empty")
     else:
-        typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
+        typer.echo("Files:\n{}Directories:\n{}".format("\n".join(files), "\n".join(dirs)))
 
 
 @app.command()
