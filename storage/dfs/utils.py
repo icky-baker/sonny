@@ -34,14 +34,14 @@ def recovery(resp):
                         params={"command": "file_read", "name": name[1::], "cwd": "/"},
                     )
                     if r.status_code == 200:
-                        with open(name, "wb+") as fp:
+                        with open(f"{settings.WORK_DIR}{name}", "wb+") as fp:
                             fp.write(r.content)
 
         else:  # If this is a directory
             # if os.path.isdir(name):
             if os.path.exists(f"{settings.WORK_DIR}{name}"):
                 # NOTE: special case for the root directorry
-                if len(hosts) == 0 and name != "/":  # A directory only on this server
+                if not hosts and name != "/":  # A directory only on this server
                     shutil.rmtree(f"{settings.WORK_DIR}{name}")
             else:
                 os.mkdir(f"{settings.WORK_DIR}{name}")
