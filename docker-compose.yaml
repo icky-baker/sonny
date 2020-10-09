@@ -18,7 +18,7 @@ services:
 
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.check-health.schedule: "@every 5s"
+      ofelia.job-exec.check-health.schedule: "@every 15s"
       ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
@@ -39,8 +39,8 @@ services:
     volumes:
       - ./client_data:/app/data
 
-  deploy:
-    - replicas: 0
+    deploy:
+      replicas: 0
 
 #    depends_on:
 #      - storage_1
