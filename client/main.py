@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import os
 import pathlib
@@ -314,10 +315,11 @@ def file_move(filename: str, destination_path: str):
 @app.command()
 def open_directory(name: str):
     # Should allow to change directory
-    try:
-        validate_filepath(name)
-    except ValidationError as e:
-        typer.echo(f"{e}\n", file=sys.stderr)
+    if name != "..":
+        try:
+            validate_filepath(name)
+        except ValidationError as e:
+            typer.echo(f"{e}\n", file=sys.stderr)
 
     global CWD
 
@@ -390,6 +392,7 @@ def read_directory():
         msg = "Directory content:\n"
         if files:
             msg += "\tFiles:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", files)))
+            msg += "\n\n"
         if dirs:
             msg += "\tDirectories:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", dirs)))
 
@@ -432,6 +435,11 @@ def make_directory(directory_name: str, path: Optional[str] = None):
 @app.command()
 def rmdir(directory_name: str):
     delete_directory(directory_name)
+
+
+@app.command()
+def mkdir(directory_name: str):
+    make_directory(directory_name)
 
 
 @app.command()

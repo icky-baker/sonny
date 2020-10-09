@@ -1,21 +1,5 @@
 # Distributed Systems - DFS project
 
-![master](https://github.com/icky-baker/sonny/workflows/Linting/badge.svg?
-
-
-## Team
-### Danil Usmanov
-### Egor Osokin
-### Olya Chernukhina
-
-## Group
-BS-18-SB-01
-
-## Date
-### October 2020, semester 5
-
-Table of Contents
-=================
 
    * [Distributed Systems - DFS project](#distributed-systems---dfs-project)
    * [Table of contents](#table-of-contents)
