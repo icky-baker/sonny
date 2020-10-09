@@ -153,7 +153,7 @@ def file_write(path_to_the_file: str):
 
     r = requests.post(
         url="http://" + IP + ":" + PORT + "/api/file/",
-        params={"name": filename, "size": size, "cwd": CWD},
+        params={"name": pathlib.Path(filename).name, "size": size, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
 
