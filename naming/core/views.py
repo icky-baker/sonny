@@ -175,7 +175,7 @@ def file_delete(request: WSGIRequest):
         return JsonResponse({"replicate_to": None}, status=200)
 
     file.save()
-    if file.hosts.exists():
+    if file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING).exists():
         return JsonResponse(
             {
                 "replicate_to": model_to_dict(
