@@ -141,7 +141,9 @@ def file_approve(request: WSGIRequest):
     new_file.hosts.add(sender_host)
     new_file.save()
 
-    hosts_without_file = StorageServer.objects.get_active().exclude(files=new_file)
+    hosts_without_file = StorageServer.objects.filter(status=StorageServer.StorageServerStatuses.RUNNING).exclude(
+        files=new_file
+    )
     if new_file.size:
         hosts_without_file = hosts_without_file.filter(available_space__gt=new_file.size)
 
