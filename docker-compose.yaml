@@ -61,7 +61,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+      # - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_1
 
@@ -83,7 +83,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+      # - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_2
 
@@ -102,7 +102,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+      # - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_3
 
