@@ -315,7 +315,7 @@ def file_move(filename: str, destination_path: str):
 @app.command()
 def open_directory(name: str):
     # Should allow to change directory
-    if (name!=".."):
+    if name != "..":
         try:
             validate_filepath(name)
         except ValidationError as e:
@@ -435,6 +435,7 @@ def make_directory(directory_name: str, path: Optional[str] = None):
 @app.command()
 def rmdir(directory_name: str):
     delete_directory(directory_name)
+
 
 @app.command()
 def mkdir(directory_name: str):
