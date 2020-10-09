@@ -133,7 +133,6 @@ def file_read(filename: str):
     typer.echo(f"Downloading the file {filename} from the server")
     with open(os.path.join(BASE_DIR, filename), "wb+") as fp:
         fp.write(req.content)
-        fp.close()
     typer.echo(f"File '{filename}' is downloaded")
 
     data_dump()

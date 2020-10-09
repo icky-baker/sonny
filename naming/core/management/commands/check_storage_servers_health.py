@@ -21,7 +21,7 @@ class Command(BaseCommand):
             try:
                 response = requests.post(
                     f"{server.get_url()}api/",
-                    timeout=1,
+                    # timeout=1,
                     data={"files_to_replicate": [model_to_dict(m) for m in files_to_replicate]},
                 )
             except Exception:

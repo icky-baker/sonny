@@ -17,6 +17,8 @@ RUN chmod 0644 /etc/cron.d/naming-crontab &&\
 COPY Makefile naming/ /app/
 RUN mv /app/naming/env_settings.py.docker /app/naming/env_settings.py
 
+COPY client_data/ /app/data/
+
 RUN printenv > /etc/environment
 RUN cron
 # CMD ["gunicorn", "-b", "0.0.0.0:8000", "naming.wsgi"]
