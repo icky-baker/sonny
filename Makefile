@@ -136,7 +136,7 @@ client_entrypoint: |
 
 .PHONY: deploy
 deploy: |
-	docker stack -c docker-compose.yaml deploy dfs
+	docker-compose pull && docker stack -c docker-compose.yaml deploy dfs
 
 .PHONY: rm
 rm: |
