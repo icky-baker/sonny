@@ -130,6 +130,14 @@ check: |
 ss_sync: |
 	$(base_python) manage.py register;
 
-.PHONE: client_entrypoint
+.PHONY: client_entrypoint
 client_entrypoint: |
 	./client.sh
+
+.PHONY: deploy
+deploy: |
+	docker stack -c docker-compose.yaml deploy dfs
+
+.PHONY: rm
+rm: |
+	docker stack rm dfs
