@@ -16,10 +16,10 @@ services:
     volumes:
       - ./logs:/tmp/
 
-#    labels:
-#      ofelia.enabled: "true"
-#      ofelia.job-exec.check-health.schedule: "@every 30s"
-#      ofelia.job-exec.check-health.command: "make check"
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.check-health.schedule: "@every 15s"
+      ofelia.job-exec.check-health.command: "make check"
 
   ofelia:
     image: mcuadros/ofelia:latest
@@ -35,14 +35,16 @@ services:
       context: .
       dockerfile: client.dockerfile
 
-    command: bash
     volumes:
       - ./client_data:/app/data
 
-    depends_on:
-      - storage_1
-      - storage_2
-      - storage_3
+    deploy:
+      replicas: 1
+
+#    depends_on:
+#      - storage_1
+#      - storage_2
+#      - storage_3
 
   db:
     image: postgres
@@ -61,7 +63,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+       - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_1
 
@@ -83,7 +85,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+       - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_2
 
@@ -102,7 +104,7 @@ services:
       dockerfile: storage.dockerfile
     volumes:
       - ./logs:/tmp/
-      - ./dfs/:/app/var/
+       - ./dfs/:/app/var/
     environment:
       - HOSTNAME=storage_3
 

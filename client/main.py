@@ -25,12 +25,11 @@ PORT = "80"
 BASE_DIR = pathlib.Path(__file__).parent.absolute() / "data"
 SCRIPT_DIR = BASE_DIR.parent
 
-# CWD = "/"  # should start and end with '/'
 
 try:
     with open(f"{BASE_DIR}/data.json", "r") as json_file:
         CWD = json.load(json_file)["cwd"]
-except json.decoder.JSONDecodeError:
+except (json.decoder.JSONDecodeError, FileNotFoundError):
     CWD = "/"
 
 
@@ -122,7 +121,7 @@ def file_read(filename: str):
         typer.echo(f"Error {r.status_code} {r.text}")
         return
 
-    storage_ip, storage_port = str(r.json()[0]["host"]), str(r.json()[0]["port"])
+    storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
     req = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_read", "name": filename, "cwd": CWD},
@@ -133,7 +132,7 @@ def file_read(filename: str):
 
     typer.echo(f"Downloading the file {filename} from the server")
     with open(os.path.join(BASE_DIR, filename), "wb+") as fp:
-        fp.write(r.content)
+        fp.write(req.content)
         fp.close()
     typer.echo(f"File '{filename}' is downloaded")
 
@@ -154,7 +153,7 @@ def file_write(path_to_the_file: str):
 
     r = requests.post(
         url="http://" + IP + ":" + PORT + "/api/file/",
-        params={"name": filename, "size": size, "cwd": CWD},
+        params={"name": pathlib.Path(filename).name, "size": size, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
 
@@ -229,13 +228,14 @@ def file_info(filename: str):
         typer.echo("File with this name doesn't exist")
         return
 
+    info = r.json()["file_info"]
+
     table = BeautifulTable()
-    for key in r.json()["file info"]:
-        table.rows.append(key, r.json()["file_info"][str(key)])
+    print("keys are", info.keys())
+    table.columns.header = list(map(str, info.keys()))
+    table.rows.append(map(str, info.values()))
+    typer.echo(str(table))
 
-    typer.echo(table)
-
-    # {"hosts": [{"host": "192.168.224.4", "port": 8000}], "file_info": {"file": "canvas.png", "size": "12345922", "access time": "Tue Oct  6 22:32:57 2020", "change time": "Tue Oct  6 22:32:57 2020", "modified time": "Tue Oct  6 22:32:57 2020"}}
     data_dump()
 
 
@@ -298,7 +298,7 @@ def file_move(filename: str, destination_path: str):
         return
 
     storage_ip, storage_port = str(r.json()["hosts"][0]["host"]), str(r.json()["hosts"][0]["port"])
-    typer.echo("File transfer to '{destination_path}' is in process")
+    typer.echo(f"File transfer to '{destination_path}' is in process")
     r = requests.get(
         url="http://" + storage_ip + ":" + storage_port + "/api/dfs/",
         params={"command": "file_move", "name": filename, "cwd": CWD, "path": destination_path},
@@ -331,12 +331,13 @@ def open_directory(name: str):
 
     if r.status_code == 200:
         real_cwd = pathlib.Path(CWD)
-        if name == "..":
-            real_cwd = real_cwd.parent
-        else:
-            real_cwd = real_cwd / name
-
-        CWD = str(real_cwd) + ""
+        cwd_by_name = {
+            "..": real_cwd.parent,
+            ".": real_cwd,
+        }
+        CWD = str(cwd_by_name.get(name, real_cwd / name))
+        if CWD[-1] != "/":
+            CWD += "/"
 
         data_dump(CWD)
         typer.echo(f"Current working directory is {CWD}")
@@ -345,24 +346,32 @@ def open_directory(name: str):
 
 
 @app.command()
-def read_directory(path: Optional[str] = None):
+def ls():
+    read_directory()
+
+
+@app.command()
+def read_directory():
     # Should return list of files, which are stored in the directory.
-    if not path:
-        path = CWD
-    else:
-        try:
-            validate_filepath(path)
-        except ValidationError as e:
-            typer.echo(f"{e}\n", file=sys.stderr)
-            return
+    # if not path:
+    #     path = CWD
+    # else:
+    #     try:
+    #         validate_filepath(path)
+    #     except ValidationError as e:
+    #         typer.echo(f"{e}\n", file=sys.stderr)
+    #         return
 
     r = requests.get(
         url="http://" + IP + ":" + PORT + "/api/directory/",
-        params={"name": path, "cwd": CWD},
+        params={"name": ".", "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
     data_dump()
+
     # r_json = r.json()
+    # print(r.text)
+    # print(r.status_code)
     respon_json = json.loads(r.text).get("files", [])
 
     files = []
@@ -370,15 +379,23 @@ def read_directory(path: Optional[str] = None):
     for item in respon_json:
         name = item.get("name")
         size = item.get("size")
-        if size is None:
-            dirs.append(name)
-        else:
-            files.append(name)
+        (dirs if size is None else files).append(pathlib.Path(name).name + "/")
+        # if size is None:
+        #     dirs.append(name)
+        # else:
+        #     files.append(name)
 
-    if len(files) == 0 and len(dirs) == 0:
+    typer.echo(f"Current directory is {CWD}")
+    if not files and not dirs:
         typer.echo("This directory is empty")
     else:
-        typer.echo("Files:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs)))
+        msg = "Directory content:\n"
+        if files:
+            msg += "\tFiles:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", files)))
+        if dirs:
+            msg += "\tDirectories:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", dirs)))
+
+        typer.echo(msg)
 
 
 @app.command()
@@ -415,7 +432,18 @@ def make_directory(directory_name: str, path: Optional[str] = None):
 
 
 @app.command()
-def delete_directory(directory_name: str, path: Optional[str] = None):
+def rmdir(directory_name: str):
+    delete_directory(directory_name)
+
+
+@app.command()
+def delete_directory(directory_name: str):
+    path = None
+    not_allowed_names = ["..", "."]
+    if directory_name in not_allowed_names:
+        typer.echo("I can't delete this directory")
+        return
+
     # Should allow to delete directory.  If the directory contains files the system should ask for confirmation from the user before deletion.
     if not path:
         path = CWD
@@ -431,6 +459,7 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
         params={"name": directory_name, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
+    # typer.echo(r.text)
 
     respon_json = json.loads(r.text).get("files", [])
 
@@ -446,7 +475,9 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
                 files.append(name)
 
         typer.echo(
-            "This directory is not empty \n\nFiles:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs))
+            "This directory is not empty \n\nFiles:\n\n{}\nDirectories:\n\n{}\n".format(
+                "\n".join(files), "\n".join(dirs)
+            )
         )
         delete = typer.confirm("Are you sure you want to delete it?")
         if not delete:
@@ -454,11 +485,14 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
             raise typer.Abort()
         typer.echo("Deleting it!")
 
-    r = requests.post(url="http://" + IP + ":" + PORT + "/api/directory/", headers={"Server-Hash": "suchsecret"})
-    storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
-    storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(
-        r.json()["hosts"][storage_server]["port"]
+    r = requests.get(
+        url="http://" + IP + ":" + PORT + "/api/file/",
+        params={"name": directory_name, "cwd": CWD},
+        headers={"Server-Hash": "suchsecret"},
     )
+
+    server = random.choice(r.json()["hosts"])
+    storage_ip, storage_port = server["host"], str(server["port"])
 
     if r.status_code != 200:
         typer.echo(f"Error {r.status_code} {r.text}")
@@ -474,6 +508,11 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
     elif r.status_code == 400:
         typer.echo("Directory with such name doesn't exist")
     data_dump()
+
+
+@app.command()
+def pwd():
+    typer.echo(CWD)
 
 
 if __name__ == "__main__":

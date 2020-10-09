@@ -141,7 +141,9 @@ def file_approve(request: WSGIRequest):
     new_file.hosts.add(sender_host)
     new_file.save()
 
-    hosts_without_file = StorageServer.objects.get_active().exclude(files=new_file)
+    hosts_without_file = StorageServer.objects.filter(status=StorageServer.StorageServerStatuses.RUNNING).exclude(
+        files=new_file
+    )
     if new_file.size:
         hosts_without_file = hosts_without_file.filter(available_space__gt=new_file.size)
 
@@ -158,8 +160,9 @@ def file_delete(request: WSGIRequest):
         return param
 
     file_name, host, port, cwd = param
+    logger.info(f"{cwd=}, {file_name=}")
     full_name = get_full_name(cwd, file_name)
-    logger.info("param", param)
+
     logger.info("full_name = %s", full_name)
 
     try:
@@ -169,13 +172,20 @@ def file_delete(request: WSGIRequest):
 
     file.hosts.remove(StorageServer.objects.get(host=host, port=port))
 
-    if list(file.hosts.all()):
+    if not list(file.hosts.all()):
         file.delete()
         return JsonResponse({"replicate_to": None}, status=200)
 
     file.save()
-    if file.hosts.exists():
-        return JsonResponse({"replicate_to": model_to_dict(file.hosts.first(), ["host", "port"])}, status=200)
+    if file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING).exists():
+        return JsonResponse(
+            {
+                "replicate_to": model_to_dict(
+                    file.hosts.filter(status=StorageServer.StorageServerStatuses.RUNNING).first(), ["host", "port"]
+                )
+            },
+            status=200,
+        )
     else:
         return JsonResponse({"replicate_to": None}, status=200)
 
@@ -186,10 +196,11 @@ def retrieve_directory_content(request: WSGIRequest):
         return param
     dir_name, cwd = param
     logger.info(f"dir name is {dir_name}")
-    if dir_name == "..":
-        full_name = str(Path(cwd).parent)
-    else:
-        full_name = get_full_name(cwd, dir_name)
+    full_name_by_dir_name = {
+        "..": str(Path(cwd).parent),
+        ".": cwd[:-1],  # NOTE: because there is no slash at the end in DB, but there is a slash in input
+    }
+    full_name = full_name_by_dir_name.get(dir_name, get_full_name(cwd, dir_name))
 
     logger.info(f"full name is {full_name}")
     if not StoredFile.objects.filter(name=full_name).exists():
