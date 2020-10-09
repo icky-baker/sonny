@@ -1,6 +1,5 @@
 # sonny
-DFS built for DS course
-![master](https://github.com/actions/hello-world/workflows/Greet%20Everyone/badge.svg?branch=feature-1)
+![master](https://github.com/actions/hello-world/workflows/Greet%20Everyone/badge.svg?branch=master)
 
 # Get started
 
