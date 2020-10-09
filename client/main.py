@@ -345,23 +345,29 @@ def open_directory(name: str):
 
 
 @app.command()
-def read_directory(path: Optional[str] = None):
+def ls():
+    read_directory()
+
+
+@app.command()
+def read_directory():
     # Should return list of files, which are stored in the directory.
-    if not path:
-        path = CWD
-    else:
-        try:
-            validate_filepath(path)
-        except ValidationError as e:
-            typer.echo(f"{e}\n", file=sys.stderr)
-            return
+    # if not path:
+    #     path = CWD
+    # else:
+    #     try:
+    #         validate_filepath(path)
+    #     except ValidationError as e:
+    #         typer.echo(f"{e}\n", file=sys.stderr)
+    #         return
 
     r = requests.get(
         url="http://" + IP + ":" + PORT + "/api/directory/",
-        params={"name": path, "cwd": CWD},
+        params={"name": ".", "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
     data_dump()
+
     # r_json = r.json()
     # print(r.text)
     # print(r.status_code)
@@ -372,15 +378,23 @@ def read_directory(path: Optional[str] = None):
     for item in respon_json:
         name = item.get("name")
         size = item.get("size")
-        if size is None:
-            dirs.append(name)
-        else:
-            files.append(name)
+        (dirs if size is None else files).append(pathlib.Path(name).name + "/")
+        # if size is None:
+        #     dirs.append(name)
+        # else:
+        #     files.append(name)
 
-    if len(files) == 0 and len(dirs) == 0:
+    typer.echo(f"Current directory is {CWD}")
+    if not files and not dirs:
         typer.echo("This directory is empty")
     else:
-        typer.echo("Files:\n{}Directories:\n{}".format("\n".join(files), "\n".join(dirs)))
+        msg = "Directory content:\n"
+        if files:
+            msg += "\tFiles:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", files)))
+        if dirs:
+            msg += "\tDirectories:\n{}".format("\n".join(map(lambda s: f"\t\t- {s}", dirs)))
+
+        typer.echo(msg)
 
 
 @app.command()
@@ -417,7 +431,18 @@ def make_directory(directory_name: str, path: Optional[str] = None):
 
 
 @app.command()
-def delete_directory(directory_name: str, path: Optional[str] = None):
+def rmdir(directory_name: str):
+    delete_directory(directory_name)
+
+
+@app.command()
+def delete_directory(directory_name: str):
+    path = None
+    not_allowed_names = ["..", "."]
+    if directory_name in not_allowed_names:
+        typer.echo("I can't delete this directory")
+        return
+
     # Should allow to delete directory.  If the directory contains files the system should ask for confirmation from the user before deletion.
     if not path:
         path = CWD
@@ -433,6 +458,7 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
         params={"name": directory_name, "cwd": CWD},
         headers={"Server-Hash": "suchsecret"},
     )
+    typer.echo(r.text)
 
     respon_json = json.loads(r.text).get("files", [])
 
@@ -448,7 +474,9 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
                 files.append(name)
 
         typer.echo(
-            "This directory is not empty \n\nFiles:\n\n{}Directories:\n\n{}".format("\n".join(files), "\n".join(dirs))
+            "This directory is not empty \n\nFiles:\n\n{}\nDirectories:\n\n{}\n".format(
+                "\n".join(files), "\n".join(dirs)
+            )
         )
         delete = typer.confirm("Are you sure you want to delete it?")
         if not delete:
@@ -456,11 +484,14 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
             raise typer.Abort()
         typer.echo("Deleting it!")
 
-    r = requests.post(url="http://" + IP + ":" + PORT + "/api/directory/", headers={"Server-Hash": "suchsecret"})
-    storage_server = random.randint(0, len(r.json()["hosts"]) - 1)
-    storage_ip, storage_port = str(r.json()["hosts"][storage_server]["host"]), str(
-        r.json()["hosts"][storage_server]["port"]
+    r = requests.get(
+        url="http://" + IP + ":" + PORT + "/api/file/",
+        params={"name": directory_name, "cwd": CWD},
+        headers={"Server-Hash": "suchsecret"},
     )
+
+    server = random.choice(r.json()["hosts"])
+    storage_ip, storage_port = server["host"], str(server["port"])
 
     if r.status_code != 200:
         typer.echo(f"Error {r.status_code} {r.text}")
@@ -479,7 +510,7 @@ def delete_directory(directory_name: str, path: Optional[str] = None):
 
 
 @app.command()
-def cwd():
+def pwd():
     typer.echo(CWD)
 
 

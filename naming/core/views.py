@@ -158,6 +158,7 @@ def file_delete(request: WSGIRequest):
         return param
 
     file_name, host, port, cwd = param
+    logger.info(f"{cwd=}, {file_name=}")
     full_name = get_full_name(cwd, file_name)
 
     logger.info("full_name = %s", full_name)

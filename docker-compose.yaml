@@ -39,10 +39,10 @@ services:
     volumes:
       - ./client_data:/app/data
 
-    depends_on:
-      - storage_1
-      - storage_2
-      - storage_3
+#    depends_on:
+#      - storage_1
+#      - storage_2
+#      - storage_3
 
   db:
     image: postgres

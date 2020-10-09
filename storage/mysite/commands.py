@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import time
+from pathlib import Path
 
 import requests
 from django.conf import settings
@@ -293,15 +294,26 @@ def dir_delete(cwd):
         return JsonResponse({"msg": {"error": "directory with such name doesn't exist"}}, status=400)
     else:
         shutil.rmtree(f"{settings.WORK_DIR}{cwd}")
+        # NOTE: fuck the way how directory to delete is transferred between client and storage server
+        # Because of there constrains, we need to extract real dir name here
+        real_cwd = Path(cwd)
+        dir_name = real_cwd.name
+        real_cwd = real_cwd.parent
+
         logger.info("The directory: deleted")
+        logger.info(f"{dir_name=}, {real_cwd=}")
+
+        real_cwd = str(real_cwd)
+        real_cwd = str(real_cwd) if real_cwd[-1] == "/" else str(real_cwd) + "/"
+
         r = requests.post(
             f"{settings.HOST_NAMING}/api/file/delete/",
             data={},
-            params={"name": None, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": cwd},
+            params={"name": dir_name, "host": settings.HOST_IP, "port": settings.HOST_PORT, "cwd": real_cwd},
         )
         logger.info(f"Response from naming server: {r.status_code}")
 
-        if r.json()["replicate_to"] is not None:
+        if r.json()["replicate_to"]:
             host = r.json()["replicate_to"]["host"]
             port = r.json()["replicate_to"]["port"]
             r = requests.get(
