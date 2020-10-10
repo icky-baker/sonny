@@ -16,16 +16,17 @@
 **Prerequisites:**
 1) 2 VPS instances with Ubuntu 18.04 or higher
 
-**Installation guide in case of Docker is not preinstalled**
+**Installation guide in case Docker is not preinstalled**
+
 *If you have Docker go a step down*
 
 1) Follow this [instruction](https://github.com/Birdi7/docker-install-ansible#how-to-use)
     ###### It will install Docker&Docker compose on your VPS via Ansible
 
-**Installation guide in case of Docker is preinstalled**
+**Installation guide in case Docker is preinstalled**
 1) Connect VPSs to swarm
-    1. On VPC1: `docker swarm init`
-    2. On VPC2: `docker swarm join --token $YOUR_TOKEN_HERE $YOUR_IP_HERE:2377`
+    1. On VPS1: `docker swarm init`
+    2. On VPS2: `docker swarm join --token $YOUR_TOKEN_HERE $YOUR_IP_HERE:2377`
 3) Launch the project
     1) Clone this repository`git clone https://github.com/icky-baker/sonny.git`
     2) Go to the project folder `cd sonny`
@@ -45,6 +46,7 @@ As a result, for example, our system looks like this:
 # Communication protocols
 
 ## Endpoints
+
 *Note: All requests are listed in the format of [httpie](https://httpie.org)*
 
 ### Naming Server
